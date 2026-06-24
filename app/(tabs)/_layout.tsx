@@ -1,8 +1,11 @@
 import { Tabs } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import { Platform } from "react-native";
+import { useTranslation } from "react-i18next";
 
 export default function TabsLayout() {
+  const { t } = useTranslation();
+
   return (
     <Tabs
       screenOptions={{
@@ -30,7 +33,7 @@ export default function TabsLayout() {
       <Tabs.Screen
         name="jobs/index"
         options={{
-          title: "Empleos",
+          title: t("tabs.jobs"),
           href: "/jobs",
           tabBarIcon: ({ color, size, focused }) => (
             <Ionicons
@@ -44,7 +47,7 @@ export default function TabsLayout() {
       <Tabs.Screen
         name="favorites/index"
         options={{
-          title: "Favoritos",
+          title: t("tabs.favorites"),
           href: "/favorites",
           tabBarIcon: ({ color, size, focused }) => (
             <Ionicons
