@@ -6,10 +6,10 @@ export const Config = {
     ENABLED: true,
     META_SUFFIX: "_meta",
     TTL: {
-      STATIC: 24 * 60 * 60 * 1000, // 24h: categorías, tipos
-      DYNAMIC: 15 * 60 * 1000, // 15min: listado de empleos
-      DETAIL: 5 * 60 * 1000, // 5min: detalle de empleo
-      FOREVER: Infinity, // ∞: favoritos (no expira)
+      STATIC: 24 * 60 * 60 * 1000, // 24h: categories, types
+      DYNAMIC: 15 * 60 * 1000, // 15min: list of jobs
+      DETAIL: 5 * 60 * 1000, // 5min: employment breakdown
+      FOREVER: Infinity, // ∞: favourites (never expire)
     },
     PREFIXES: {
       CATEGORIES: "CATEGORIES_",
@@ -20,7 +20,7 @@ export const Config = {
     },
   },
 
-  // Paginación
+  // Pagination
   PAGINATION: {
     DEFAULT_LIMIT: 20,
     MAX_LIMIT: 100,
@@ -32,7 +32,7 @@ export const Config = {
     CACHE_READ: 5000,
   },
 
-  // Entorno
+  // Environment
   IS_DEV: __DEV__,
 } as const;
 
