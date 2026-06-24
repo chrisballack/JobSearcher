@@ -22,17 +22,17 @@ Desarrollado como prueba técnica para **RedArbor**.
 
 ## 🛠 Stack Tecnológico
 
-| Categoría | Tecnología | Versión |
-|-----------|-----------|---------|
-| Framework | React Native + Expo SDK | 52.0.49 |
-| Navegación | Expo Router | 4.0.x |
-| State Management | Zustand | 5.0.x |
-| HTTP Client | Axios | 1.18.x |
-| Formularios | React Hook Form + Zod | 7.80.x / 4.4.x |
-| Listas | @shopify/flash-list | 1.7.3 |
-| HTML Rendering | react-native-render-html | 6.3.4 |
-| Animaciones | react-native-reanimated | 3.16.x |
-| Lenguaje | TypeScript | 5.9.x |
+| Categoría        | Tecnología               | Versión        |
+| ---------------- | ------------------------ | -------------- |
+| Framework        | React Native + Expo SDK  | 52.0.49        |
+| Navegación       | Expo Router              | 4.0.x          |
+| State Management | Zustand                  | 5.0.x          |
+| HTTP Client      | Axios                    | 1.18.x         |
+| Formularios      | React Hook Form + Zod    | 7.80.x / 4.4.x |
+| Listas           | @shopify/flash-list      | 1.7.3          |
+| HTML Rendering   | react-native-render-html | 6.3.4          |
+| Animaciones      | react-native-reanimated  | 3.16.x         |
+| Lenguaje         | TypeScript               | 5.9.x          |
 
 ---
 
@@ -101,7 +101,7 @@ cp .env.example .env
 Editar `.env` con tu configuración:
 
 ```env
-EXPO_PUBLIC_API_URL=https://tu-api-url.com
+EXPO_PUBLIC_API_URL=https://remotive.com/api
 ```
 
 ### 4. Generar proyectos nativos
@@ -128,6 +128,8 @@ npx expo run:android
 # Development server (con QR code para Expo Go)
 npx expo start
 ```
+
+> 💡 La app inicia directamente en la pestaña **Jobs** (listado de empleos).
 
 ---
 
@@ -209,9 +211,9 @@ Cada vez que ejecutes `npx expo prebuild --clean` o `pod install`, los archivos 
 JobSearcher/
 ├── app/                          # Expo Router (navegación por archivos)
 │   ├── _layout.tsx              # Layout raíz con providers
-│   ├── index.tsx                # Pantalla inicial (redirect según auth)
+│   ├── index.tsx                # Redirect inicial → /(tabs)/jobs
 │   └── (tabs)/                  # Tab navigation
-│       ├── _layout.tsx          # Layout de tabs
+│       ├── _layout.tsx          # Layout de tabs (Jobs, Favorites)
 │       ├── jobs/
 │       │   └── index.tsx        # Listado de empleos
 │       ├── detail/
@@ -332,13 +334,13 @@ const getJobsUseCase = new GetJobsUseCase(jobRepository);
 
 ### Estrategias de Cache
 
-| Tipo de dato | TTL | Estrategia |
-|--------------|-----|------------|
-| Categorías | 24h | Cache-First |
-| Tipos de empleo | 24h | Cache-First |
+| Tipo de dato      | TTL   | Estrategia             |
+| ----------------- | ----- | ---------------------- |
+| Categorías        | 24h   | Cache-First            |
+| Tipos de empleo   | 24h   | Cache-First            |
 | Empleos (listado) | 15min | Stale-While-Revalidate |
-| Detalle de empleo | 5min | Network-First |
-| Favoritos | ∞ | Local (AsyncStorage) |
+| Detalle de empleo | 5min  | Network-First          |
+| Favoritos         | ∞     | Local (AsyncStorage)   |
 
 ---
 
@@ -444,21 +446,22 @@ Build input file cannot be found: '.../generated/ios/...'
 npx expo prebuild --platform ios
 npx expo run:ios
 ```
+
 ---
 
 ## 📝 Convenciones de Código
 
 ### Nombres de Archivos
 
-| Tipo | Convención | Ejemplo |
-|------|-----------|---------|
-| Componentes | PascalCase | `JobCard.tsx` |
-| Screens | PascalCase | `JobsListScreen.tsx` |
-| ViewModels | camelCase + ViewModel | `jobsViewModel.ts` |
-| UseCases | PascalCase + UseCase | `GetJobsUseCase.ts` |
-| Repositories | camelCase + Repository | `jobRepository.ts` |
-| Utils | camelCase | `formatDate.ts` |
-| Types | PascalCase | `Job.ts` |
+| Tipo         | Convención             | Ejemplo              |
+| ------------ | ---------------------- | -------------------- |
+| Componentes  | PascalCase             | `JobCard.tsx`        |
+| Screens      | PascalCase             | `JobsListScreen.tsx` |
+| ViewModels   | camelCase + ViewModel  | `jobsViewModel.ts`   |
+| UseCases     | PascalCase + UseCase   | `GetJobsUseCase.ts`  |
+| Repositories | camelCase + Repository | `jobRepository.ts`   |
+| Utils        | camelCase              | `formatDate.ts`      |
+| Types        | PascalCase             | `Job.ts`             |
 
 ### TypeScript
 
@@ -471,10 +474,10 @@ npx expo run:ios
 
 ## 🌐 Variables de Entorno
 
-| Variable | Descripción | Ejemplo |
-|----------|-------------|---------|
-| `EXPO_PUBLIC_API_URL` | URL base de la API | `https://remotive.com/api` |
-| `EXPO_PUBLIC_ENV` | Entorno (dev/staging/prod) | `development` |
+| Variable              | Descripción                | Ejemplo                    |
+| --------------------- | -------------------------- | -------------------------- |
+| `EXPO_PUBLIC_API_URL` | URL base de la API         | `https://remotive.com/api` |
+| `EXPO_PUBLIC_ENV`     | Entorno (dev/staging/prod) | `development`              |
 
 Crear archivo `.env` basado en `.env.example`.
 
@@ -484,8 +487,6 @@ Crear archivo `.env` basado en `.env.example`.
 
 **Christians Bonilla**
 Prueba técnica para RedArbor - Junio 2026
-
-
 
 ---
 
