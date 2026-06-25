@@ -1,12 +1,3 @@
-// src/presentation/components/FilterBar.tsx
-//
-//  FilterBar.tsx
-//  JobSearcher
-//
-//  Created by Christians Bonilla on 25/06/2026.
-//  Copyright © 2026 JobSearcher. All rights reserved.
-//
-
 import { useState, useEffect, useRef } from "react";
 import {
   View,
@@ -19,6 +10,7 @@ import {
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useTranslation } from "react-i18next";
+import { useTheme } from "@/core/theme";
 
 // ============================================================================
 // Types
@@ -71,6 +63,7 @@ export default function FilterBar({
   onApply,
 }: FilterBarProps) {
   const { t } = useTranslation();
+  const { theme } = useTheme();
 
   const [localSearch, setLocalSearch] = useState(filters.search);
   const [localCategory, setLocalCategory] = useState<number | null>(
@@ -139,21 +132,28 @@ export default function FilterBar({
         {
           opacity,
           transform: [{ translateY }],
+          backgroundColor: theme.colors.filterPanelBackground,
+          borderBottomColor: theme.colors.filterPanelBorder,
         },
       ]}
     >
       {/* ===== SEARCH BAR ===== */}
-      <View style={styles.searchContainer}>
+      <View
+        style={[
+          styles.searchContainer,
+          { backgroundColor: theme.colors.inputBackground },
+        ]}
+      >
         <Ionicons
           name="search-outline"
           size={20}
-          color="#8e8e93"
+          color={theme.colors.inputPlaceholder}
           style={styles.searchIcon}
         />
         <TextInput
-          style={styles.searchInput}
+          style={[styles.searchInput, { color: theme.colors.inputText }]}
           placeholder={t("jobs.filters.searchPlaceholder")}
-          placeholderTextColor="#8e8e93"
+          placeholderTextColor={theme.colors.inputPlaceholder}
           value={localSearch}
           onChangeText={setLocalSearch}
           autoCapitalize="none"
@@ -166,7 +166,11 @@ export default function FilterBar({
             style={styles.clearButton}
             hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
           >
-            <Ionicons name="close-circle" size={20} color="#8e8e93" />
+            <Ionicons
+              name="close-circle"
+              size={20}
+              color={theme.colors.inputPlaceholder}
+            />
           </TouchableOpacity>
         )}
       </View>
@@ -174,8 +178,10 @@ export default function FilterBar({
       {/* ===== SECTION 1: CATEGORY ===== */}
       <View style={styles.section}>
         <View style={styles.sectionHeader}>
-          <Ionicons name="folder" size={16} color="#6200ee" />
-          <Text style={styles.sectionTitle}>{t("jobs.filters.category")}</Text>
+          <Ionicons name="folder" size={16} color={theme.colors.primary} />
+          <Text style={[styles.sectionTitle, { color: theme.colors.text }]}>
+            {t("jobs.filters.category")}
+          </Text>
         </View>
 
         <ScrollView
@@ -184,11 +190,28 @@ export default function FilterBar({
           contentContainerStyle={styles.chipsContainer}
         >
           <TouchableOpacity
-            style={[styles.chip, !localCategory && styles.chipActive]}
+            style={[
+              styles.chip,
+              {
+                backgroundColor: theme.colors.chipBackground,
+                borderColor: theme.colors.chipBorder,
+              },
+              !localCategory && [
+                styles.chipActive,
+                {
+                  backgroundColor: theme.colors.chipActiveBackground,
+                  borderColor: theme.colors.chipActiveBackground,
+                },
+              ],
+            ]}
             onPress={() => setLocalCategory(null)}
           >
             <Text
-              style={[styles.chipText, !localCategory && styles.chipTextActive]}
+              style={[
+                styles.chipText,
+                { color: theme.colors.chipText },
+                !localCategory && { color: theme.colors.chipActiveText },
+              ]}
             >
               {t("jobs.filters.allCategories")}
             </Text>
@@ -199,7 +222,17 @@ export default function FilterBar({
               key={category.id}
               style={[
                 styles.chip,
-                localCategory === category.id && styles.chipActive,
+                {
+                  backgroundColor: theme.colors.chipBackground,
+                  borderColor: theme.colors.chipBorder,
+                },
+                localCategory === category.id && [
+                  styles.chipActive,
+                  {
+                    backgroundColor: theme.colors.chipActiveBackground,
+                    borderColor: theme.colors.chipActiveBackground,
+                  },
+                ],
               ]}
               onPress={() =>
                 setLocalCategory(
@@ -210,7 +243,10 @@ export default function FilterBar({
               <Text
                 style={[
                   styles.chipText,
-                  localCategory === category.id && styles.chipTextActive,
+                  { color: theme.colors.chipText },
+                  localCategory === category.id && {
+                    color: theme.colors.chipActiveText,
+                  },
                 ]}
                 numberOfLines={1}
               >
@@ -224,8 +260,10 @@ export default function FilterBar({
       {/* ===== SECTION 2: JOB TYPE ===== */}
       <View style={styles.section}>
         <View style={styles.sectionHeader}>
-          <Ionicons name="time" size={16} color="#6200ee" />
-          <Text style={styles.sectionTitle}>{t("jobs.filters.jobType")}</Text>
+          <Ionicons name="time" size={16} color={theme.colors.primary} />
+          <Text style={[styles.sectionTitle, { color: theme.colors.text }]}>
+            {t("jobs.filters.jobType")}
+          </Text>
         </View>
 
         <ScrollView
@@ -234,11 +272,28 @@ export default function FilterBar({
           contentContainerStyle={styles.chipsContainer}
         >
           <TouchableOpacity
-            style={[styles.chip, !localJobType && styles.chipActive]}
+            style={[
+              styles.chip,
+              {
+                backgroundColor: theme.colors.chipBackground,
+                borderColor: theme.colors.chipBorder,
+              },
+              !localJobType && [
+                styles.chipActive,
+                {
+                  backgroundColor: theme.colors.chipActiveBackground,
+                  borderColor: theme.colors.chipActiveBackground,
+                },
+              ],
+            ]}
             onPress={() => setLocalJobType(null)}
           >
             <Text
-              style={[styles.chipText, !localJobType && styles.chipTextActive]}
+              style={[
+                styles.chipText,
+                { color: theme.colors.chipText },
+                !localJobType && { color: theme.colors.chipActiveText },
+              ]}
             >
               {t("jobs.filters.allTypes")}
             </Text>
@@ -249,7 +304,17 @@ export default function FilterBar({
               key={type.id}
               style={[
                 styles.chip,
-                localJobType === type.id && styles.chipActive,
+                {
+                  backgroundColor: theme.colors.chipBackground,
+                  borderColor: theme.colors.chipBorder,
+                },
+                localJobType === type.id && [
+                  styles.chipActive,
+                  {
+                    backgroundColor: theme.colors.chipActiveBackground,
+                    borderColor: theme.colors.chipActiveBackground,
+                  },
+                ],
               ]}
               onPress={() =>
                 setLocalJobType(localJobType === type.id ? null : type.id)
@@ -258,7 +323,10 @@ export default function FilterBar({
               <Text
                 style={[
                   styles.chipText,
-                  localJobType === type.id && styles.chipTextActive,
+                  { color: theme.colors.chipText },
+                  localJobType === type.id && {
+                    color: theme.colors.chipActiveText,
+                  },
                 ]}
                 numberOfLines={1}
               >
@@ -270,7 +338,15 @@ export default function FilterBar({
       </View>
 
       {/* ===== BOTTOM BAR ===== */}
-      <View style={styles.bottomBar}>
+      <View
+        style={[
+          styles.bottomBar,
+          {
+            backgroundColor: theme.colors.surface,
+            borderTopColor: theme.colors.borderLight,
+          },
+        ]}
+      >
         <View style={styles.bottomActions}>
           {hasActiveFilters && (
             <TouchableOpacity
@@ -278,15 +354,35 @@ export default function FilterBar({
               style={styles.clearAllButton}
               hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
             >
-              <Ionicons name="close-outline" size={18} color="#6200ee" />
-              <Text style={styles.clearAllText}>
+              <Ionicons
+                name="close-outline"
+                size={18}
+                color={theme.colors.primary}
+              />
+              <Text
+                style={[styles.clearAllText, { color: theme.colors.primary }]}
+              >
                 {t("jobs.filters.clearFilters")}
               </Text>
             </TouchableOpacity>
           )}
 
-          <TouchableOpacity style={styles.applyButton} onPress={onApply}>
-            <Text style={styles.applyButtonText}>
+          <TouchableOpacity
+            style={[
+              styles.applyButton,
+              {
+                backgroundColor: theme.colors.primary,
+                shadowColor: theme.colors.primary,
+              },
+            ]}
+            onPress={onApply}
+          >
+            <Text
+              style={[
+                styles.applyButtonText,
+                { color: theme.colors.chipActiveText },
+              ]}
+            >
               {t("jobs.filters.applyFilters")}
             </Text>
           </TouchableOpacity>
@@ -297,14 +393,11 @@ export default function FilterBar({
 }
 
 // ============================================================================
-// Styles
+// Styles (solo propiedades estáticas, los colores son dinámicos)
 // ============================================================================
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: "#fff",
     borderBottomWidth: 1,
-    borderBottomColor: "#e5e5ea",
-    shadowColor: "#000",
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.08,
     shadowRadius: 8,
@@ -315,7 +408,6 @@ const styles = StyleSheet.create({
   searchContainer: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "#f2f2f7",
     borderRadius: 12,
     marginHorizontal: 16,
     marginTop: 12,
@@ -329,7 +421,6 @@ const styles = StyleSheet.create({
   searchInput: {
     flex: 1,
     fontSize: 15,
-    color: "#000",
     paddingVertical: 8,
   },
   clearButton: {
@@ -349,7 +440,6 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 14,
     fontWeight: "700",
-    color: "#1c1c1e",
   },
 
   chipsContainer: {
@@ -360,30 +450,19 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingVertical: 10,
     borderRadius: 20,
-    backgroundColor: "#f2f2f7",
     borderWidth: 1,
-    borderColor: "#e5e5ea",
     marginRight: 8,
   },
-  chipActive: {
-    backgroundColor: "#6200ee",
-    borderColor: "#6200ee",
-  },
+  chipActive: {},
   chipText: {
     fontSize: 13,
     fontWeight: "600",
-    color: "#6200ee",
-  },
-  chipTextActive: {
-    color: "#fff",
   },
 
   bottomBar: {
     paddingHorizontal: 16,
     paddingVertical: 12,
     borderTopWidth: 1,
-    borderTopColor: "#f2f2f7",
-    backgroundColor: "#fafafa",
   },
   bottomActions: {
     flexDirection: "row",
@@ -401,21 +480,17 @@ const styles = StyleSheet.create({
   clearAllText: {
     fontSize: 14,
     fontWeight: "600",
-    color: "#6200ee",
   },
   applyButton: {
-    backgroundColor: "#6200ee",
     paddingHorizontal: 24,
     paddingVertical: 12,
     borderRadius: 10,
-    shadowColor: "#6200ee",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.3,
     shadowRadius: 4,
     elevation: 3,
   },
   applyButtonText: {
-    color: "#fff",
     fontSize: 15,
     fontWeight: "700",
   },

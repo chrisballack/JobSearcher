@@ -9,6 +9,7 @@ import {
 import { Ionicons } from "@expo/vector-icons";
 import { useNavigation } from "expo-router";
 import { useTranslation } from "react-i18next";
+import { useTheme } from "@/core/theme";
 import FilterBar, {
   FilterState,
   Category,
@@ -30,6 +31,7 @@ const JOB_TYPES: JobType[] = [
 export default function JobsScreen() {
   const navigation = useNavigation();
   const { t } = useTranslation();
+  const { theme } = useTheme();
   const [showFilters, setShowFilters] = useState(false);
   const [filters, setFilters] = useState<FilterState>({
     search: "",
@@ -48,12 +50,12 @@ export default function JobsScreen() {
           <Ionicons
             name={showFilters ? "options" : "options-outline"}
             size={24}
-            color={showFilters ? "#6200ee" : "#000"}
+            color={showFilters ? theme.colors.primary : theme.colors.text}
           />
         </TouchableOpacity>
       ),
     });
-  }, [navigation, showFilters]);
+  }, [navigation, showFilters, theme.colors.primary, theme.colors.text]);
 
   const handleApplyFilters = () => {
     console.log("Filtros aplicados:", filters);
@@ -72,7 +74,9 @@ export default function JobsScreen() {
   };
 
   return (
-    <View style={styles.container}>
+    <View
+      style={[styles.container, { backgroundColor: theme.colors.background }]}
+    >
       <FilterBar
         visible={showFilters}
         categories={MOCK_CATEGORIES}
@@ -84,9 +88,19 @@ export default function JobsScreen() {
 
       <ScrollView contentContainerStyle={styles.content}>
         {(filters.search || filters.categoryId || filters.jobType) && (
-          <View style={styles.activeFiltersSummary}>
-            <Ionicons name="funnel" size={16} color="#6200ee" />
-            <Text style={styles.activeFiltersText}>
+          <View
+            style={[
+              styles.activeFiltersSummary,
+              { backgroundColor: theme.colors.surfaceVariant },
+            ]}
+          >
+            <Ionicons name="funnel" size={16} color={theme.colors.primary} />
+            <Text
+              style={[
+                styles.activeFiltersText,
+                { color: theme.colors.primary },
+              ]}
+            >
               {filters.search && `"${filters.search}" `}
               {filters.categoryId &&
                 `• ${getCategoryName(filters.categoryId)} `}
@@ -96,9 +110,20 @@ export default function JobsScreen() {
         )}
 
         <View style={styles.emptyState}>
-          <Ionicons name="briefcase-outline" size={64} color="#d1d1d6" />
-          <Text style={styles.emptyTitle}>{t("jobs.empty.title")}</Text>
-          <Text style={styles.emptySubtitle}>
+          <Ionicons
+            name="briefcase-outline"
+            size={64}
+            color={theme.colors.textTertiary}
+          />
+          <Text style={[styles.emptyTitle, { color: theme.colors.text }]}>
+            {t("jobs.empty.title")}
+          </Text>
+          <Text
+            style={[
+              styles.emptySubtitle,
+              { color: theme.colors.textSecondary },
+            ]}
+          >
             {showFilters
               ? t("jobs.empty.subtitleActive")
               : t("jobs.empty.subtitle")}
@@ -110,13 +135,12 @@ export default function JobsScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: "#fff" },
+  container: { flex: 1 },
   filterButton: { marginRight: 16, padding: 4 },
   content: { flexGrow: 1 },
   activeFiltersSummary: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "#f3f0ff",
     marginHorizontal: 16,
     marginTop: 12,
     paddingVertical: 10,
@@ -126,7 +150,6 @@ const styles = StyleSheet.create({
   },
   activeFiltersText: {
     fontSize: 13,
-    color: "#6200ee",
     fontWeight: "600",
     flex: 1,
   },
@@ -139,13 +162,11 @@ const styles = StyleSheet.create({
   emptyTitle: {
     fontSize: 22,
     fontWeight: "bold",
-    color: "#1c1c1e",
     marginTop: 16,
     marginBottom: 8,
   },
   emptySubtitle: {
     fontSize: 15,
-    color: "#8e8e93",
     textAlign: "center",
     lineHeight: 22,
   },
