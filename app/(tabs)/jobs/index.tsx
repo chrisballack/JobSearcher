@@ -10,12 +10,22 @@ import { Ionicons } from "@expo/vector-icons";
 import { useNavigation } from "expo-router";
 import { useTranslation } from "react-i18next";
 import { useTheme } from "@/core/theme";
+import {
+  spacing,
+  fontSize,
+  fontWeight,
+  borderRadius,
+  iconSize,
+} from "@/core/design-system";
 import FilterBar, {
   FilterState,
   Category,
   JobType,
 } from "@/presentation/components/FilterBar";
 
+// ============================================================================
+// Mock Data
+// ============================================================================
 const MOCK_CATEGORIES: Category[] = [
   { id: 1, name: "Software Dev" },
   { id: 2, name: "Design" },
@@ -28,6 +38,19 @@ const JOB_TYPES: JobType[] = [
   { id: "contract", name: "Contract" },
 ];
 
+// ============================================================================
+// Reusable HitSlop
+// ============================================================================
+const HEADER_ICON_HIT_SLOP = {
+  top: spacing.md + 3,
+  bottom: spacing.md + 3,
+  left: spacing.md + 3,
+  right: spacing.md + 3,
+};
+
+// ============================================================================
+// Component
+// ============================================================================
 export default function JobsScreen() {
   const navigation = useNavigation();
   const { t } = useTranslation();
@@ -45,11 +68,11 @@ export default function JobsScreen() {
         <TouchableOpacity
           onPress={() => setShowFilters((prev) => !prev)}
           style={styles.filterButton}
-          hitSlop={{ top: 15, bottom: 15, left: 15, right: 15 }}
+          hitSlop={HEADER_ICON_HIT_SLOP}
         >
           <Ionicons
             name={showFilters ? "options" : "options-outline"}
-            size={24}
+            size={iconSize.md}
             color={showFilters ? theme.colors.primary : theme.colors.text}
           />
         </TouchableOpacity>
@@ -94,7 +117,11 @@ export default function JobsScreen() {
               { backgroundColor: theme.colors.surfaceVariant },
             ]}
           >
-            <Ionicons name="funnel" size={16} color={theme.colors.primary} />
+            <Ionicons
+              name="funnel"
+              size={iconSize.xs}
+              color={theme.colors.primary}
+            />
             <Text
               style={[
                 styles.activeFiltersText,
@@ -112,7 +139,7 @@ export default function JobsScreen() {
         <View style={styles.emptyState}>
           <Ionicons
             name="briefcase-outline"
-            size={64}
+            size={iconSize["2xl"]}
             color={theme.colors.textTertiary}
           />
           <Text style={[styles.emptyTitle, { color: theme.colors.text }]}>
@@ -134,39 +161,49 @@ export default function JobsScreen() {
   );
 }
 
+// ============================================================================
+// Styles
+// ============================================================================
 const styles = StyleSheet.create({
-  container: { flex: 1 },
-  filterButton: { marginRight: 16, padding: 4 },
-  content: { flexGrow: 1 },
+  container: {
+    flex: 1,
+  },
+  filterButton: {
+    marginRight: spacing.base,
+    padding: spacing.xs,
+  },
+  content: {
+    flexGrow: 1,
+  },
   activeFiltersSummary: {
     flexDirection: "row",
     alignItems: "center",
-    marginHorizontal: 16,
-    marginTop: 12,
-    paddingVertical: 10,
-    paddingHorizontal: 14,
-    borderRadius: 10,
-    gap: 8,
+    marginHorizontal: spacing.base,
+    marginTop: spacing.md,
+    paddingVertical: spacing.sm + 2,
+    paddingHorizontal: spacing.md + 2,
+    borderRadius: borderRadius.lg,
+    gap: spacing.sm,
   },
   activeFiltersText: {
-    fontSize: 13,
-    fontWeight: "600",
+    fontSize: fontSize.sm,
+    fontWeight: fontWeight.semibold,
     flex: 1,
   },
   emptyState: {
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    padding: 32,
+    padding: spacing["2xl"],
   },
   emptyTitle: {
-    fontSize: 22,
-    fontWeight: "bold",
-    marginTop: 16,
-    marginBottom: 8,
+    fontSize: fontSize["3xl"],
+    fontWeight: fontWeight.bold,
+    marginTop: spacing.base,
+    marginBottom: spacing.sm,
   },
   emptySubtitle: {
-    fontSize: 15,
+    fontSize: fontSize.md,
     textAlign: "center",
     lineHeight: 22,
   },

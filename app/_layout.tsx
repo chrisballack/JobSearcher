@@ -3,8 +3,11 @@ import { SafeAreaProvider } from "react-native-safe-area-context";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { StyleSheet, StatusBar } from "react-native";
+import { useTranslation } from "react-i18next";
 import "@/core/i18n";
 import { ThemeProvider, useTheme } from "@/core/theme";
+import { fontWeight } from "@/core/design-system";
+import { Config } from "@/core/constants/Config";
 
 // ============================================================================
 // QueryClient singleton
@@ -12,15 +15,19 @@ import { ThemeProvider, useTheme } from "@/core/theme";
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
-      retry: 1,
-      staleTime: 5 * 60 * 1000,
-      refetchOnWindowFocus: false,
+      retry: Config.QUERY.RETRY,
+      staleTime: Config.QUERY.STALE_TIME,
+      refetchOnWindowFocus: Config.QUERY.REFETCH_ON_WINDOW_FOCUS,
     },
   },
 });
 
+// ============================================================================
+// Themed Stack
+// ============================================================================
 function ThemedStack() {
   const { theme } = useTheme();
+  const { t } = useTranslation();
 
   return (
     <>
@@ -43,14 +50,14 @@ function ThemedStack() {
           name="detail/[id]"
           options={{
             headerShown: true,
-            title: "Detalle del Empleo",
-            headerBackTitle: "Volver",
+            title: t("jobDetail.title"),
+            headerBackTitle: t("common.back"),
             headerStyle: {
               backgroundColor: theme.colors.headerBackground,
             },
             headerTintColor: theme.colors.headerText,
             headerTitleStyle: {
-              fontWeight: "600",
+              fontWeight: fontWeight.semibold,
             },
           }}
         />

@@ -3,10 +3,12 @@ import { Ionicons } from "@expo/vector-icons";
 import { Platform } from "react-native";
 import { useTranslation } from "react-i18next";
 import { useTheme } from "@/core/theme";
+import { fontSize, fontWeight, tabBar } from "@/core/design-system";
 
 export default function TabsLayout() {
   const { t } = useTranslation();
   const { theme } = useTheme();
+  const platformTabBar = Platform.OS === "ios" ? tabBar.ios : tabBar.android;
 
   return (
     <Tabs
@@ -17,21 +19,21 @@ export default function TabsLayout() {
         },
         headerTintColor: theme.colors.headerText,
         headerTitleStyle: {
-          fontWeight: "600",
+          fontWeight: fontWeight.semibold,
         },
         tabBarActiveTintColor: theme.colors.tabBarActive,
         tabBarInactiveTintColor: theme.colors.tabBarInactive,
         tabBarStyle: {
           backgroundColor: theme.colors.tabBarBackground,
-          borderTopWidth: 0,
+          borderTopWidth: tabBar.borderTopWidth,
           elevation: 0,
-          height: Platform.OS === "ios" ? 88 : 64,
-          paddingBottom: Platform.OS === "ios" ? 28 : 8,
-          paddingTop: 8,
+          height: platformTabBar.height,
+          paddingBottom: platformTabBar.paddingBottom,
+          paddingTop: tabBar.paddingTop,
         },
         tabBarLabelStyle: {
-          fontSize: 12,
-          fontWeight: "600",
+          fontSize: fontSize.xs,
+          fontWeight: fontWeight.semibold,
         },
       }}
     >

@@ -11,6 +11,19 @@ import {
 import { Ionicons } from "@expo/vector-icons";
 import { useTranslation } from "react-i18next";
 import { useTheme } from "@/core/theme";
+import {
+  spacing,
+  fontSize,
+  fontWeight,
+  borderRadius,
+  shadow,
+  borderWidth,
+  iconSize,
+  animationDuration,
+  springConfig,
+  animationValues,
+  thresholds,
+} from "@/core/design-system";
 
 // ============================================================================
 // Types
@@ -52,6 +65,16 @@ const DEFAULT_JOB_TYPES: JobType[] = [
 ];
 
 // ============================================================================
+// Reusable HitSlop
+// ============================================================================
+const DEFAULT_HIT_SLOP = {
+  top: spacing.sm + 2,
+  bottom: spacing.sm + 2,
+  left: spacing.sm + 2,
+  right: spacing.sm + 2,
+};
+
+// ============================================================================
 // Component
 // ============================================================================
 export default function FilterBar({
@@ -73,34 +96,38 @@ export default function FilterBar({
     filters.jobType,
   );
 
-  const translateY = useRef(new Animated.Value(-100)).current;
-  const opacity = useRef(new Animated.Value(0)).current;
+  const translateY = useRef(
+    new Animated.Value(animationValues.translateY.hidden),
+  ).current;
+  const opacity = useRef(
+    new Animated.Value(animationValues.opacity.hidden),
+  ).current;
 
   useEffect(() => {
     if (visible) {
       Animated.parallel([
         Animated.spring(translateY, {
-          toValue: 0,
-          friction: 10,
-          tension: 80,
+          toValue: animationValues.translateY.visible,
+          friction: springConfig.normal.friction,
+          tension: springConfig.normal.tension,
           useNativeDriver: true,
         }),
         Animated.timing(opacity, {
-          toValue: 1,
-          duration: 250,
+          toValue: animationValues.opacity.visible,
+          duration: animationDuration.slow,
           useNativeDriver: true,
         }),
       ]).start();
     } else {
       Animated.parallel([
         Animated.timing(translateY, {
-          toValue: -100,
-          duration: 200,
+          toValue: animationValues.translateY.hidden,
+          duration: animationDuration.normal,
           useNativeDriver: true,
         }),
         Animated.timing(opacity, {
-          toValue: 0,
-          duration: 150,
+          toValue: animationValues.opacity.hidden,
+          duration: animationDuration.fast,
           useNativeDriver: true,
         }),
       ]).start();
@@ -122,6 +149,7 @@ export default function FilterBar({
   };
 
   const hasActiveFilters = localSearch || localCategory || localJobType;
+  const hasSearchText = localSearch.length >= thresholds.minLength.search;
 
   if (!visible) return null;
 
@@ -146,7 +174,7 @@ export default function FilterBar({
       >
         <Ionicons
           name="search-outline"
-          size={20}
+          size={iconSize.sm}
           color={theme.colors.inputPlaceholder}
           style={styles.searchIcon}
         />
@@ -160,15 +188,15 @@ export default function FilterBar({
           autoCorrect={false}
           returnKeyType="search"
         />
-        {localSearch.length > 0 && (
+        {hasSearchText && (
           <TouchableOpacity
             onPress={() => setLocalSearch("")}
             style={styles.clearButton}
-            hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+            hitSlop={DEFAULT_HIT_SLOP}
           >
             <Ionicons
               name="close-circle"
-              size={20}
+              size={iconSize.sm}
               color={theme.colors.inputPlaceholder}
             />
           </TouchableOpacity>
@@ -178,7 +206,11 @@ export default function FilterBar({
       {/* ===== SECTION 1: CATEGORY ===== */}
       <View style={styles.section}>
         <View style={styles.sectionHeader}>
-          <Ionicons name="folder" size={16} color={theme.colors.primary} />
+          <Ionicons
+            name="folder"
+            size={iconSize.xs}
+            color={theme.colors.primary}
+          />
           <Text style={[styles.sectionTitle, { color: theme.colors.text }]}>
             {t("jobs.filters.category")}
           </Text>
@@ -260,7 +292,11 @@ export default function FilterBar({
       {/* ===== SECTION 2: JOB TYPE ===== */}
       <View style={styles.section}>
         <View style={styles.sectionHeader}>
-          <Ionicons name="time" size={16} color={theme.colors.primary} />
+          <Ionicons
+            name="time"
+            size={iconSize.xs}
+            color={theme.colors.primary}
+          />
           <Text style={[styles.sectionTitle, { color: theme.colors.text }]}>
             {t("jobs.filters.jobType")}
           </Text>
@@ -352,11 +388,11 @@ export default function FilterBar({
             <TouchableOpacity
               onPress={clearAll}
               style={styles.clearAllButton}
-              hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+              hitSlop={DEFAULT_HIT_SLOP}
             >
               <Ionicons
                 name="close-outline"
-                size={18}
+                size={iconSize.sm}
                 color={theme.colors.primary}
               />
               <Text
@@ -393,105 +429,99 @@ export default function FilterBar({
 }
 
 // ============================================================================
-// Styles (solo propiedades estáticas, los colores son dinámicos)
+// Styles - Sin magic numbers
 // ============================================================================
 const styles = StyleSheet.create({
   container: {
-    borderBottomWidth: 1,
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.08,
-    shadowRadius: 8,
-    elevation: 5,
+    borderBottomWidth: borderWidth.thin,
+    ...shadow.lg,
     zIndex: 10,
   },
 
   searchContainer: {
     flexDirection: "row",
     alignItems: "center",
-    borderRadius: 12,
-    marginHorizontal: 16,
-    marginTop: 12,
-    marginBottom: 16,
-    paddingHorizontal: 12,
+    borderRadius: borderRadius.xl,
+    marginHorizontal: spacing.base,
+    marginTop: spacing.md,
+    marginBottom: spacing.base,
+    paddingHorizontal: spacing.md,
     height: 44,
   },
   searchIcon: {
-    marginRight: 8,
+    marginRight: spacing.sm,
   },
   searchInput: {
     flex: 1,
-    fontSize: 15,
-    paddingVertical: 8,
+    fontSize: fontSize.md,
+    paddingVertical: spacing.sm,
   },
   clearButton: {
-    padding: 4,
+    padding: spacing.xs,
   },
 
   section: {
-    marginBottom: 16,
+    marginBottom: spacing.base,
   },
   sectionHeader: {
     flexDirection: "row",
     alignItems: "center",
-    paddingHorizontal: 16,
-    marginBottom: 10,
+    paddingHorizontal: spacing.base,
+    marginBottom: spacing.sm + 2,
     gap: 6,
   },
   sectionTitle: {
-    fontSize: 14,
-    fontWeight: "700",
+    fontSize: fontSize.base,
+    fontWeight: fontWeight.bold,
   },
 
   chipsContainer: {
-    paddingHorizontal: 16,
-    gap: 8,
+    paddingHorizontal: spacing.base,
+    gap: spacing.sm,
   },
   chip: {
-    paddingHorizontal: 16,
-    paddingVertical: 10,
-    borderRadius: 20,
-    borderWidth: 1,
-    marginRight: 8,
+    paddingHorizontal: spacing.base,
+    paddingVertical: spacing.sm + 2,
+    borderRadius: borderRadius["3xl"],
+    borderWidth: borderWidth.thin,
+    marginRight: spacing.sm,
   },
   chipActive: {},
   chipText: {
-    fontSize: 13,
-    fontWeight: "600",
+    fontSize: fontSize.sm,
+    fontWeight: fontWeight.semibold,
   },
 
   bottomBar: {
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    borderTopWidth: 1,
+    paddingHorizontal: spacing.base,
+    paddingVertical: spacing.md,
+    borderTopWidth: borderWidth.thin,
   },
   bottomActions: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "flex-end",
-    gap: 12,
+    gap: spacing.md,
   },
   clearAllButton: {
     flexDirection: "row",
     alignItems: "center",
-    gap: 4,
-    paddingHorizontal: 12,
-    paddingVertical: 8,
+    gap: spacing.xs,
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.sm,
   },
   clearAllText: {
-    fontSize: 14,
-    fontWeight: "600",
+    fontSize: fontSize.base,
+    fontWeight: fontWeight.semibold,
   },
   applyButton: {
-    paddingHorizontal: 24,
-    paddingVertical: 12,
-    borderRadius: 10,
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.3,
-    shadowRadius: 4,
-    elevation: 3,
+    paddingHorizontal: spacing.xl,
+    paddingVertical: spacing.md,
+    borderRadius: borderRadius.lg,
+    ...shadow.md,
   },
   applyButtonText: {
-    fontSize: 15,
-    fontWeight: "700",
+    fontSize: fontSize.md,
+    fontWeight: fontWeight.bold,
   },
 });
