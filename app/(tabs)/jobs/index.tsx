@@ -6,6 +6,8 @@ import {
   TouchableOpacity,
   NativeSyntheticEvent,
   NativeScrollEvent,
+  ActivityIndicator,
+  RefreshControl,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useNavigation, useRouter } from "expo-router";
@@ -21,85 +23,22 @@ import {
 } from "@/core/design-system";
 import FilterBar, {
   FilterState,
-  Category,
   JobType,
 } from "@/presentation/components/FilterBar";
-import JobCard, { JobCardProps } from "@/presentation/components/JobCard";
+import JobCard from "@/presentation/components/JobCard";
+import { useCategories } from "@/presentation/hooks/useCategories";
+import { useJobs } from "@/presentation/hooks/useJobs";
+import Config from "@/core/constants/Config";
 
 // ============================================================================
-// Mock Data
+// Job Types
 // ============================================================================
-const MOCK_CATEGORIES: Category[] = [
-  { id: 1, name: "Software Dev" },
-  { id: 2, name: "Design" },
-  { id: 3, name: "Marketing" },
-];
-
 const JOB_TYPES: JobType[] = [
   { id: "full_time", name: "Full Time" },
   { id: "part_time", name: "Part Time" },
   { id: "contract", name: "Contract" },
-];
-
-const MOCK_JOBS: JobCardProps[] = [
-  {
-    id: "1",
-    title: "Senior Quality Engineer (São Paulo)",
-    companyName: "LawnStarter",
-    companyLogo: "https://remotive.com/job/2091000/logo",
-    location: "Brazil",
-    salaryMin: 45000,
-    salaryMax: 65000,
-    currency: "$",
-    postedAt: "25 days ago",
-    tags: ["backend", "php", "react"],
-    isFavorite: false,
-  },
-  {
-    id: "2",
-    title: "Senior Frontend Developer",
-    companyName: "TechCorp International",
-    location: "Remote - Worldwide",
-    salaryMin: 60000,
-    salaryMax: 90000,
-    currency: "$",
-    postedAt: "2 days ago",
-    tags: [
-      "AWS",
-      "backend",
-      "frontend",
-      "php",
-      "react",
-      "security",
-      "UI/UX",
-      "AI/ML",
-      "jira",
-      "react native",
-      "documentation",
-      "laravel",
-      "Typescript ",
-      "people management",
-      "prototyping",
-      "engineering management",
-      "marketplace",
-      "github",
-      "REST",
-      "datadog",
-    ],
-    isFavorite: true,
-  },
-  {
-    id: "3",
-    title: "Backend Developer",
-    companyName: "StartupXYZ",
-    location: "Remote - LATAM",
-    salaryMin: 40000,
-    salaryMax: 70000,
-    currency: "$",
-    postedAt: "5 days ago",
-    tags: ["nodejs", "python", "aws"],
-    isFavorite: false,
-  },
+  { id: "freelance", name: "Freelance" },
+  { id: "internship", name: "Internship" },
 ];
 
 // ============================================================================
@@ -116,9 +55,9 @@ const HEADER_ICON_HIT_SLOP = {
 // Scroll Thresholds
 // ============================================================================
 const SCROLL_THRESHOLD = {
-  DIRECTION_DELTA: 5, // Mínimo de pixels para considerar cambio de dirección
-  HIDE_ABOVE_Y: 100, // Ocultar FilterBar si scrollY > 100
-  SHOW_BELOW_Y: 50, // Mostrar FilterBar si scrollY < 50
+  DIRECTION_DELTA: 5,
+  HIDE_ABOVE_Y: 100,
+  SHOW_BELOW_Y: 50,
 };
 
 // ============================================================================
@@ -165,13 +104,23 @@ export default function JobsScreen() {
   const { t } = useTranslation();
   const { theme } = useTheme();
 
-  const [showFilters, setShowFilters] = useState(false);
+  // Hooks
+  const { data: categories = [] } = useCategories();
   const [filters, setFilters] = useState<FilterState>({
     search: "",
     categoryId: null,
     jobType: null,
   });
-  const [jobs, setJobs] = useState<JobCardProps[]>(MOCK_JOBS);
+
+  const { jobs, loading, error, toggleFavorite, refresh } = useJobs({
+    search: filters.search || undefined,
+    categoryId: filters.categoryId || undefined,
+    jobType: filters.jobType || undefined,
+    limit: Config.PAGINATION.DEFAULT_LIMIT,
+  });
+
+  const [showFilters, setShowFilters] = useState(false);
+  const [isRefreshing, setIsRefreshing] = useState(false);
   const lastScrollY = useRef(0);
   const isHiddenByScroll = useRef(false);
 
@@ -209,17 +158,8 @@ export default function JobsScreen() {
   // Handlers
   // ========================================================================
   const handleApplyFilters = () => {
-    console.log("Filtros aplicados:", filters);
     setShowFilters(false);
   };
-
-  const handleToggleFavorite = useCallback((jobId: string) => {
-    setJobs((prevJobs) =>
-      prevJobs.map((job) =>
-        job.id === jobId ? { ...job, isFavorite: !job.isFavorite } : job,
-      ),
-    );
-  }, []);
 
   const handleJobPress = useCallback(
     (jobId: string) => {
@@ -227,6 +167,15 @@ export default function JobsScreen() {
     },
     [router],
   );
+
+  const handleRefresh = useCallback(async () => {
+    setIsRefreshing(true);
+    try {
+      await refresh();
+    } finally {
+      setIsRefreshing(false);
+    }
+  }, [refresh]);
 
   // ========================================================================
   // Scroll handler
@@ -260,7 +209,7 @@ export default function JobsScreen() {
 
   const getCategoryName = (categoryId: number | null): string => {
     if (!categoryId) return "";
-    const category = MOCK_CATEGORIES.find((c) => c.id === categoryId);
+    const category = categories.find((c) => c.id === categoryId);
     return category?.name || "";
   };
 
@@ -268,17 +217,62 @@ export default function JobsScreen() {
   // Renderers
   // ========================================================================
   const renderJobCard = useCallback(
-    ({ item }: { item: JobCardProps }) => (
+    ({ item }: { item: (typeof jobs)[0] }) => (
       <JobCard
         {...item}
         onPress={() => handleJobPress(item.id)}
-        onToggleFavorite={() => handleToggleFavorite(item.id)}
+        onToggleFavorite={() => toggleFavorite(parseInt(item.id, 10))}
       />
     ),
-    [handleJobPress, handleToggleFavorite],
+    [handleJobPress, toggleFavorite],
   );
 
   const renderEmptyList = useCallback(() => {
+    if (loading && !isRefreshing) {
+      return (
+        <View style={styles.loadingContainer}>
+          <ActivityIndicator size="large" color={theme.colors.primary} />
+          <Text
+            style={[styles.loadingText, { color: theme.colors.textSecondary }]}
+          >
+            {t("common.loading")}
+          </Text>
+        </View>
+      );
+    }
+
+    if (error) {
+      return (
+        <View style={styles.emptyState}>
+          <Ionicons
+            name="alert-circle-outline"
+            size={iconSize["2xl"]}
+            color={theme.colors.error}
+          />
+          <Text style={[styles.emptyTitle, { color: theme.colors.text }]}>
+            {t("common.error")}
+          </Text>
+          <Text
+            style={[
+              styles.emptySubtitle,
+              { color: theme.colors.textSecondary },
+            ]}
+          >
+            {error}
+          </Text>
+          <TouchableOpacity
+            style={[
+              styles.retryButton,
+              { backgroundColor: theme.colors.primary },
+            ]}
+            onPress={() => refresh()}
+          >
+            <Text style={styles.retryButtonText}>{t("common.retry")}</Text>
+          </TouchableOpacity>
+        </View>
+      );
+    }
+
     return (
       <EmptyJobsList
         showFilters={showFilters}
@@ -290,13 +284,7 @@ export default function JobsScreen() {
         textSecondaryColor={theme.colors.textSecondary}
       />
     );
-  }, [
-    showFilters,
-    t,
-    theme.colors.text,
-    theme.colors.textSecondary,
-    theme.colors.textTertiary,
-  ]);
+  }, [loading, error, showFilters, t, theme, refresh, isRefreshing]);
 
   return (
     <View
@@ -304,7 +292,7 @@ export default function JobsScreen() {
     >
       <FilterBar
         visible={showFilters}
-        categories={MOCK_CATEGORIES}
+        categories={categories}
         jobTypes={JOB_TYPES}
         filters={filters}
         onFiltersChange={setFilters}
@@ -339,7 +327,7 @@ export default function JobsScreen() {
         </TouchableOpacity>
       )}
 
-      <FlashList<JobCardProps>
+      <FlashList
         data={jobs}
         renderItem={renderJobCard}
         keyExtractor={(item) => item.id}
@@ -349,6 +337,14 @@ export default function JobsScreen() {
         onScroll={handleScroll}
         scrollEventThrottle={16}
         ListEmptyComponent={renderEmptyList()}
+        refreshControl={
+          <RefreshControl
+            refreshing={isRefreshing}
+            onRefresh={handleRefresh}
+            tintColor={theme.colors.primary}
+            colors={[theme.colors.primary]}
+          />
+        }
       />
     </View>
   );
@@ -401,5 +397,27 @@ const styles = StyleSheet.create({
     fontSize: fontSize.md,
     textAlign: "center",
     lineHeight: 22,
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    padding: spacing["2xl"],
+    minHeight: 300,
+    gap: spacing.base,
+  },
+  loadingText: {
+    fontSize: fontSize.md,
+  },
+  retryButton: {
+    marginTop: spacing.base,
+    paddingHorizontal: spacing.xl,
+    paddingVertical: spacing.md,
+    borderRadius: borderRadius.lg,
+  },
+  retryButtonText: {
+    color: "#FFFFFF",
+    fontSize: fontSize.base,
+    fontWeight: fontWeight.bold,
   },
 });

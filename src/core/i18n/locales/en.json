@@ -45,6 +45,14 @@
       "contract": "Contract",
       "freelance": "Freelance",
       "internship": "Internship"
+    },
+    "company": {
+      "unknown": "Unknown company"
+    },
+    "salary": {
+      "notAvailable": "Not available",
+      "from": "From",
+      "to": "Up to"
     }
   },
   "favorites": {

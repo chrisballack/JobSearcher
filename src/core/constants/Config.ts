@@ -14,15 +14,21 @@ export const TIME = {
 export const Config = {
   API_BASE_URL: process.env.EXPO_PUBLIC_API_URL || "https://remotive.com/api",
 
+  // Endpoints
+  ENDPOINTS: {
+    CATEGORIES: "/remote-jobs/categories",
+    JOBS: "/remote-jobs",
+  },
+
   // Cache
   CACHE: {
     ENABLED: true,
     META_SUFFIX: "_meta",
     TTL: {
-      STATIC: TIME.DAY, // 24h: categories, types
-      DYNAMIC: 15 * TIME.MINUTE, // 15 mins: list of jobs
-      DETAIL: 5 * TIME.MINUTE, // 5 mins: employment details
-      FOREVER: Infinity, // ∞: favourites (never expire)
+      STATIC: TIME.DAY,
+      DYNAMIC: 15 * TIME.MINUTE,
+      DETAIL: 5 * TIME.MINUTE,
+      FOREVER: Infinity,
     },
     PREFIXES: {
       CATEGORIES: "CATEGORIES_",

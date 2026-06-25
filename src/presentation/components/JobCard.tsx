@@ -1,5 +1,6 @@
 import { View, Text, TouchableOpacity, StyleSheet, Image } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
+import { useTranslation } from "react-i18next";
 import { useTheme } from "@/core/theme";
 import {
   spacing,
@@ -16,7 +17,7 @@ import {
 export interface JobCardProps {
   id: string;
   title: string;
-  companyName: string;
+  companyName?: string; // ✅ Ahora es opcional
   companyLogo?: string;
   location: string;
   salaryMin?: number;
@@ -30,16 +31,29 @@ export interface JobCardProps {
 }
 
 // ============================================================================
+// Constants (sin magic numbers)
+// ============================================================================
+const BOOKMARK_HIT_SLOP = {
+  top: spacing.md,
+  bottom: spacing.md,
+  left: spacing.md,
+  right: spacing.md,
+};
+
+const MAX_TAGS_VISIBLE = 5;
+
+// ============================================================================
 // Helpers
 // ============================================================================
 const formatSalary = (
   min?: number,
   max?: number,
   currency: string = "$",
+  t: (key: string) => string = (key) => key,
 ): string => {
-  if (!min && !max) return "No disponible";
+  if (!min && !max) return t("jobs.salary.notAvailable");
 
-  const formatNumber = (num: number) => {
+  const formatNumber = (num: number): string => {
     if (num >= 1000) {
       return `${currency}${(num / 1000).toFixed(0)}k`;
     }
@@ -50,13 +64,13 @@ const formatSalary = (
     return `${formatNumber(min)} - ${formatNumber(max)}`;
   }
   if (min) {
-    return `Desde ${formatNumber(min)}`;
+    return `${t("jobs.salary.from")} ${formatNumber(min)}`;
   }
   if (max) {
-    return `Hasta ${formatNumber(max)}`;
+    return `${t("jobs.salary.to")} ${formatNumber(max)}`;
   }
 
-  return "No disponible";
+  return t("jobs.salary.notAvailable");
 };
 
 // ============================================================================
@@ -77,7 +91,13 @@ export default function JobCard({
   onPress,
   onToggleFavorite,
 }: JobCardProps) {
+  const { t } = useTranslation();
   const { theme } = useTheme();
+
+  const visibleTags = tags.slice(0, MAX_TAGS_VISIBLE);
+  const safeCompanyName = companyName || "";
+  const companyInitial =
+    safeCompanyName.length > 0 ? safeCompanyName.charAt(0).toUpperCase() : "?";
 
   return (
     <TouchableOpacity
@@ -110,7 +130,7 @@ export default function JobCard({
               ]}
             >
               <Text style={[styles.logoText, { color: theme.colors.primary }]}>
-                {companyName.charAt(0).toUpperCase()}
+                {companyInitial}
               </Text>
             </View>
           )}
@@ -119,7 +139,7 @@ export default function JobCard({
         <TouchableOpacity
           style={styles.bookmarkButton}
           onPress={onToggleFavorite}
-          hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+          hitSlop={BOOKMARK_HIT_SLOP}
         >
           <Ionicons
             name={isFavorite ? "bookmark" : "bookmark-outline"}
@@ -143,13 +163,13 @@ export default function JobCard({
           style={[styles.company, { color: theme.colors.textSecondary }]}
           numberOfLines={1}
         >
-          {companyName}
+          {companyName || t("jobs.company.unknown")}
         </Text>
 
         {/* Tags */}
-        {tags.length > 0 && (
+        {visibleTags.length > 0 && (
           <View style={styles.tagsContainer}>
-            {tags.slice(0, 5).map((tag, index) => (
+            {visibleTags.map((tag: string, index: number) => (
               <View
                 key={index}
                 style={[
@@ -187,7 +207,7 @@ export default function JobCard({
           </View>
 
           <Text style={[styles.salary, { color: theme.colors.primary }]}>
-            {formatSalary(salaryMin, salaryMax, currency)}
+            {formatSalary(salaryMin, salaryMax, currency, t)}
           </Text>
         </View>
 

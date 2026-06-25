@@ -1,5 +1,5 @@
 import { createContext, useState, useEffect, useCallback } from "react";
-import { useColorScheme, StatusBar } from "react-native";
+import { useColorScheme, StatusBar, Platform } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { lightColors, darkColors } from "./colors";
 import { Theme, ThemeMode } from "./types";
@@ -77,10 +77,10 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     StatusBar.setBarStyle(isDark ? "light-content" : "dark-content");
-    if (systemColorScheme) {
-      StatusBar.setBackgroundColor?.(colors.background);
+    if (Platform.OS === "android") {
+      StatusBar.setBackgroundColor(colors.background);
     }
-  }, [isDark, colors.background, systemColorScheme]);
+  }, [isDark, colors.background]);
 
   if (!isLoaded) {
     return null;
