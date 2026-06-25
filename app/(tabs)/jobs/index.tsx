@@ -117,13 +117,19 @@ export default function JobsScreen() {
   const { data: categories = [] } = useCategories();
   const [appliedFilters, setAppliedFilters] =
     useState<FilterState>(INITIAL_FILTERS);
-
-  const { jobs, loading, error, toggleFavorite, refresh } = useJobs({
-    search: appliedFilters.search || undefined,
-    categorySlug: appliedFilters.categorySlug || undefined,
-    jobType: appliedFilters.jobType || undefined,
-    limit: Config.PAGINATION.DEFAULT_LIMIT,
-  });
+  const selectedCategoryName = appliedFilters.categorySlug
+    ? categories.find((c) => c.slug === appliedFilters.categorySlug)?.name
+    : undefined;
+  const { jobs, loading, error, toggleFavorite, refresh } = useJobs(
+    {
+      jobType: appliedFilters.jobType || undefined,
+      limit: Config.PAGINATION.DEFAULT_LIMIT,
+    },
+    {
+      search: appliedFilters.search || undefined,
+      category: selectedCategoryName,
+    },
+  );
 
   const [showFilters, setShowFilters] = useState(false);
   const [isRefreshing, setIsRefreshing] = useState(false);
@@ -165,7 +171,6 @@ export default function JobsScreen() {
   // ========================================================================
   // Handlers
   // ========================================================================
-
   const handleApplyFilters = useCallback((newFilters: FilterState) => {
     setAppliedFilters(newFilters);
     setShowFilters(false);
