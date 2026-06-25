@@ -17,7 +17,7 @@ import {
 export interface JobCardProps {
   id: string;
   title: string;
-  companyName?: string; // ✅ Ahora es opcional
+  companyName?: string;
   companyLogo?: string;
   location: string;
   salaryMin?: number;

@@ -24,15 +24,11 @@ import {
   animationValues,
   thresholds,
 } from "@/core/design-system";
+import { Category } from "@/domain/entities/Category";
 
 // ============================================================================
 // Types
 // ============================================================================
-export interface Category {
-  id: number;
-  name: string;
-}
-
 export interface JobType {
   id: string;
   name: string;
@@ -40,7 +36,7 @@ export interface JobType {
 
 export interface FilterState {
   search: string;
-  categoryId: number | null;
+  categorySlug: string | null;
   jobType: string | null;
 }
 
@@ -49,8 +45,7 @@ interface FilterBarProps {
   categories: Category[];
   jobTypes: JobType[];
   filters: FilterState;
-  onFiltersChange: (filters: FilterState) => void;
-  onApply: () => void;
+  onApply: (filters: FilterState) => void;
 }
 
 // ============================================================================
@@ -82,15 +77,13 @@ export default function FilterBar({
   categories,
   jobTypes,
   filters,
-  onFiltersChange,
   onApply,
 }: FilterBarProps) {
   const { t } = useTranslation();
   const { theme } = useTheme();
-
   const [localSearch, setLocalSearch] = useState(filters.search);
-  const [localCategory, setLocalCategory] = useState<number | null>(
-    filters.categoryId,
+  const [localCategorySlug, setLocalCategorySlug] = useState<string | null>(
+    filters.categorySlug,
   );
   const [localJobType, setLocalJobType] = useState<string | null>(
     filters.jobType,
@@ -102,6 +95,14 @@ export default function FilterBar({
   const opacity = useRef(
     new Animated.Value(animationValues.opacity.hidden),
   ).current;
+
+  useEffect(() => {
+    if (visible) {
+      setLocalSearch(filters.search);
+      setLocalCategorySlug(filters.categorySlug);
+      setLocalJobType(filters.jobType);
+    }
+  }, [visible, filters]);
 
   useEffect(() => {
     if (visible) {
@@ -134,21 +135,21 @@ export default function FilterBar({
     }
   }, [visible]);
 
-  useEffect(() => {
-    onFiltersChange({
-      search: localSearch,
-      categoryId: localCategory,
-      jobType: localJobType,
-    });
-  }, [localSearch, localCategory, localJobType]);
-
   const clearAll = () => {
     setLocalSearch("");
-    setLocalCategory(null);
+    setLocalCategorySlug(null);
     setLocalJobType(null);
   };
 
-  const hasActiveFilters = localSearch || localCategory || localJobType;
+  const handleApply = () => {
+    onApply({
+      search: localSearch,
+      categorySlug: localCategorySlug,
+      jobType: localJobType,
+    });
+  };
+
+  const hasActiveFilters = localSearch || localCategorySlug || localJobType;
   const hasSearchText = localSearch.length >= thresholds.minLength.search;
 
   if (!visible) return null;
@@ -228,7 +229,7 @@ export default function FilterBar({
                 backgroundColor: theme.colors.chipBackground,
                 borderColor: theme.colors.chipBorder,
               },
-              !localCategory && [
+              !localCategorySlug && [
                 styles.chipActive,
                 {
                   backgroundColor: theme.colors.chipActiveBackground,
@@ -236,56 +237,55 @@ export default function FilterBar({
                 },
               ],
             ]}
-            onPress={() => setLocalCategory(null)}
+            onPress={() => setLocalCategorySlug(null)}
           >
             <Text
               style={[
                 styles.chipText,
                 { color: theme.colors.chipText },
-                !localCategory && { color: theme.colors.chipActiveText },
+                !localCategorySlug && { color: theme.colors.chipActiveText },
               ]}
             >
               {t("jobs.filters.allCategories")}
             </Text>
           </TouchableOpacity>
 
-          {categories.map((category) => (
-            <TouchableOpacity
-              key={category.id}
-              style={[
-                styles.chip,
-                {
-                  backgroundColor: theme.colors.chipBackground,
-                  borderColor: theme.colors.chipBorder,
-                },
-                localCategory === category.id && [
-                  styles.chipActive,
-                  {
-                    backgroundColor: theme.colors.chipActiveBackground,
-                    borderColor: theme.colors.chipActiveBackground,
-                  },
-                ],
-              ]}
-              onPress={() =>
-                setLocalCategory(
-                  localCategory === category.id ? null : category.id,
-                )
-              }
-            >
-              <Text
+          {categories.map((category: Category) => {
+            const isSelected = localCategorySlug === category.slug;
+            return (
+              <TouchableOpacity
+                key={category.id}
                 style={[
-                  styles.chipText,
-                  { color: theme.colors.chipText },
-                  localCategory === category.id && {
-                    color: theme.colors.chipActiveText,
+                  styles.chip,
+                  {
+                    backgroundColor: theme.colors.chipBackground,
+                    borderColor: theme.colors.chipBorder,
                   },
+                  isSelected && [
+                    styles.chipActive,
+                    {
+                      backgroundColor: theme.colors.chipActiveBackground,
+                      borderColor: theme.colors.chipActiveBackground,
+                    },
+                  ],
                 ]}
-                numberOfLines={1}
+                onPress={() =>
+                  setLocalCategorySlug(isSelected ? null : category.slug)
+                }
               >
-                {category.name}
-              </Text>
-            </TouchableOpacity>
-          ))}
+                <Text
+                  style={[
+                    styles.chipText,
+                    { color: theme.colors.chipText },
+                    isSelected && { color: theme.colors.chipActiveText },
+                  ]}
+                  numberOfLines={1}
+                >
+                  {category.name}
+                </Text>
+              </TouchableOpacity>
+            );
+          })}
         </ScrollView>
       </View>
 
@@ -335,7 +335,7 @@ export default function FilterBar({
             </Text>
           </TouchableOpacity>
 
-          {DEFAULT_JOB_TYPES.map((type) => (
+          {DEFAULT_JOB_TYPES.map((type: JobType) => (
             <TouchableOpacity
               key={type.id}
               style={[
@@ -411,7 +411,7 @@ export default function FilterBar({
                 shadowColor: theme.colors.primary,
               },
             ]}
-            onPress={onApply}
+            onPress={handleApply}
           >
             <Text
               style={[
@@ -429,7 +429,7 @@ export default function FilterBar({
 }
 
 // ============================================================================
-// Styles - Sin magic numbers
+// Styles
 // ============================================================================
 const styles = StyleSheet.create({
   container: {
@@ -437,7 +437,6 @@ const styles = StyleSheet.create({
     ...shadow.lg,
     zIndex: 10,
   },
-
   searchContainer: {
     flexDirection: "row",
     alignItems: "center",
@@ -459,7 +458,6 @@ const styles = StyleSheet.create({
   clearButton: {
     padding: spacing.xs,
   },
-
   section: {
     marginBottom: spacing.base,
   },
@@ -474,7 +472,6 @@ const styles = StyleSheet.create({
     fontSize: fontSize.base,
     fontWeight: fontWeight.bold,
   },
-
   chipsContainer: {
     paddingHorizontal: spacing.base,
     gap: spacing.sm,
@@ -491,7 +488,6 @@ const styles = StyleSheet.create({
     fontSize: fontSize.sm,
     fontWeight: fontWeight.semibold,
   },
-
   bottomBar: {
     paddingHorizontal: spacing.base,
     paddingVertical: spacing.md,

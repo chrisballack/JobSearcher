@@ -24,8 +24,8 @@ export class JobRemoteDataSourceImpl implements JobRemoteDataSource {
     if (params.search) {
       queryParams.append("search", params.search);
     }
-    if (params.categoryId) {
-      queryParams.append("category", params.categoryId.toString());
+    if (params.categorySlug) {
+      queryParams.append("category", params.categorySlug);
     }
     if (params.jobType) {
       queryParams.append("job_type", params.jobType);

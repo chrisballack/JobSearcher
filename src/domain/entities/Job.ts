@@ -15,7 +15,7 @@ export interface Job {
 
 export interface GetJobsParams {
   search?: string;
-  categoryId?: number;
+  categorySlug?: string;
   jobType?: string;
   limit?: number;
 }

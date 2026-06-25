@@ -61,6 +61,15 @@ const SCROLL_THRESHOLD = {
 };
 
 // ============================================================================
+// Initial filter state
+// ============================================================================
+const INITIAL_FILTERS: FilterState = {
+  search: "",
+  categorySlug: null,
+  jobType: null,
+};
+
+// ============================================================================
 // Empty List Component
 // ============================================================================
 function EmptyJobsList({
@@ -106,16 +115,13 @@ export default function JobsScreen() {
 
   // Hooks
   const { data: categories = [] } = useCategories();
-  const [filters, setFilters] = useState<FilterState>({
-    search: "",
-    categoryId: null,
-    jobType: null,
-  });
+  const [appliedFilters, setAppliedFilters] =
+    useState<FilterState>(INITIAL_FILTERS);
 
   const { jobs, loading, error, toggleFavorite, refresh } = useJobs({
-    search: filters.search || undefined,
-    categoryId: filters.categoryId || undefined,
-    jobType: filters.jobType || undefined,
+    search: appliedFilters.search || undefined,
+    categorySlug: appliedFilters.categorySlug || undefined,
+    jobType: appliedFilters.jobType || undefined,
     limit: Config.PAGINATION.DEFAULT_LIMIT,
   });
 
@@ -125,7 +131,9 @@ export default function JobsScreen() {
   const isHiddenByScroll = useRef(false);
 
   const hasActiveFilters =
-    filters.search || filters.categoryId || filters.jobType;
+    appliedFilters.search ||
+    appliedFilters.categorySlug ||
+    appliedFilters.jobType;
 
   // ========================================================================
   // Header button
@@ -157,9 +165,11 @@ export default function JobsScreen() {
   // ========================================================================
   // Handlers
   // ========================================================================
-  const handleApplyFilters = () => {
+
+  const handleApplyFilters = useCallback((newFilters: FilterState) => {
+    setAppliedFilters(newFilters);
     setShowFilters(false);
-  };
+  }, []);
 
   const handleJobPress = useCallback(
     (jobId: string) => {
@@ -207,9 +217,9 @@ export default function JobsScreen() {
     return t(`jobs.types.${jobTypeId}`, jobTypeId);
   };
 
-  const getCategoryName = (categoryId: number | null): string => {
-    if (!categoryId) return "";
-    const category = categories.find((c) => c.id === categoryId);
+  const getCategoryName = (categorySlug: string | null): string => {
+    if (!categorySlug) return "";
+    const category = categories.find((c) => c.slug === categorySlug);
     return category?.name || "";
   };
 
@@ -294,8 +304,7 @@ export default function JobsScreen() {
         visible={showFilters}
         categories={categories}
         jobTypes={JOB_TYPES}
-        filters={filters}
-        onFiltersChange={setFilters}
+        filters={appliedFilters}
         onApply={handleApplyFilters}
       />
 
@@ -320,9 +329,11 @@ export default function JobsScreen() {
             style={[styles.activeFiltersText, { color: theme.colors.primary }]}
             numberOfLines={1}
           >
-            {filters.search && `"${filters.search}" `}
-            {filters.categoryId && `• ${getCategoryName(filters.categoryId)} `}
-            {filters.jobType && `• ${getJobTypeName(filters.jobType)}`}
+            {appliedFilters.search && `"${appliedFilters.search}" `}
+            {appliedFilters.categorySlug &&
+              `• ${getCategoryName(appliedFilters.categorySlug)} `}
+            {appliedFilters.jobType &&
+              `• ${getJobTypeName(appliedFilters.jobType)}`}
           </Text>
         </TouchableOpacity>
       )}

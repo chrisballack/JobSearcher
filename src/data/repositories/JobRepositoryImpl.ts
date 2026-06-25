@@ -13,7 +13,7 @@ export class JobRepositoryImpl implements IJobRepository {
 
   private buildCacheKey(params: GetJobsParams): string {
     const search = params.search || "all";
-    const category = params.categoryId || "all";
+    const category = params.categorySlug || "all";
     const jobType = params.jobType || "all";
     const limit = params.limit || Config.PAGINATION.DEFAULT_LIMIT;
     return `${Config.CACHE.PREFIXES.JOBS_LIST}${search}_${category}_${jobType}_${limit}`;
