@@ -82,13 +82,19 @@ export class CacheStorage {
       const metadata: CachedData<T> = {
         data,
         timestamp: Date.now(),
-        expiresAt: ttlMs === Infinity ? Infinity : Date.now() + ttlMs,
+        expiresAt: ttlMs === Infinity ? null : Date.now() + ttlMs,
       };
 
       await Promise.all([
         AsyncStorage.setItem(key, JSON.stringify(data)),
         AsyncStorage.setItem(this.getMetaKey(key), JSON.stringify(metadata)),
       ]);
+
+      if (__DEV__) {
+        console.log(
+          `[CacheStorage] Saved "${key}" — TTL: ${ttlMs === Infinity ? "FOREVER" : `${ttlMs}ms`}`,
+        );
+      }
     } catch (error) {
       if (__DEV__) {
         console.warn(`[CacheStorage] Write error for key "${key}":`, error);

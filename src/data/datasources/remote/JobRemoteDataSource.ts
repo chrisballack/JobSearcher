@@ -1,11 +1,3 @@
-//
-//  JobRemoteDataSource.ts
-//  JobSearcher
-//
-//  Created by Christians Bonilla on 26/06/2026.
-//  Copyright © 2026 JobSearcher. All rights reserved.
-//
-
 import { ApiService } from "@/infrastructure/http/ApiService";
 import { JobsApiResponse } from "@/data/dto/JobDto";
 import { GetJobsParams } from "@/domain/entities/Job";

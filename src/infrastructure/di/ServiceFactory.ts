@@ -9,6 +9,10 @@ import { IJobRepository } from "@/domain/repositories/JobRepository";
 import { JobRepositoryImpl } from "@/data/repositories/JobRepositoryImpl";
 import { JobRemoteDataSourceImpl } from "@/data/datasources/remote/JobRemoteDataSource";
 import { GetJobsUseCase } from "@/domain/usecases/GetJobsUseCase";
+import { IFavoriteRepository } from "@/domain/repositories/FavoriteRepository";
+import { FavoriteRepositoryImpl } from "@/data/repositories/FavoriteRepositoryImpl";
+import { GetFavoritesUseCase } from "@/domain/usecases/GetFavoritesUseCase";
+import { ToggleFavoriteUseCase } from "@/domain/usecases/ToggleFavoriteUseCase";
 
 export class ServiceFactory {
   private static instance: ServiceFactory;
@@ -19,10 +23,13 @@ export class ServiceFactory {
   // Repositories
   private categoryRepository!: ICategoryRepository;
   private jobRepository!: IJobRepository;
+  private favoriteRepository!: IFavoriteRepository;
 
   // Use Cases
   private getCategoriesUseCase!: GetCategoriesUseCase;
   private getJobsUseCase!: GetJobsUseCase;
+  private getFavoritesUseCase!: GetFavoritesUseCase;
+  private toggleFavoriteUseCase!: ToggleFavoriteUseCase;
 
   private constructor() {
     this.setupServices();
@@ -61,6 +68,7 @@ export class ServiceFactory {
       jobRemoteDataSource,
       this.cacheStorage,
     );
+    this.favoriteRepository = new FavoriteRepositoryImpl(this.cacheStorage);
 
     // ------------------------
     // USE CASES
@@ -69,6 +77,10 @@ export class ServiceFactory {
       this.categoryRepository,
     );
     this.getJobsUseCase = new GetJobsUseCase(this.jobRepository);
+    this.getFavoritesUseCase = new GetFavoritesUseCase(this.favoriteRepository);
+    this.toggleFavoriteUseCase = new ToggleFavoriteUseCase(
+      this.favoriteRepository,
+    );
   }
 
   // ==========================================================================
@@ -91,5 +103,13 @@ export class ServiceFactory {
 
   getGetJobsUseCase(): GetJobsUseCase {
     return this.getJobsUseCase;
+  }
+
+  getGetFavoritesUseCase(): GetFavoritesUseCase {
+    return this.getFavoritesUseCase;
+  }
+
+  getToggleFavoriteUseCase(): ToggleFavoriteUseCase {
+    return this.toggleFavoriteUseCase;
   }
 }

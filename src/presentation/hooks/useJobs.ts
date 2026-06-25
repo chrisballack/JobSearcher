@@ -1,35 +1,17 @@
 import { useQuery } from "@tanstack/react-query";
-import { useState, useCallback, useMemo } from "react";
+import { useCallback, useMemo } from "react";
 import { ServiceFactory } from "@/infrastructure/di/ServiceFactory";
 import { Job, GetJobsParams } from "@/domain/entities/Job";
 import { parseSalary, formatPostedDate } from "@/core/utils/formatters";
+import { useFavorites } from "@/presentation/hooks/useFavorites";
+import { JobCardProps } from "@/presentation/components/JobCard";
 import Config from "@/core/constants/Config";
 
-// ============================================================================
-// UI Model
-// ============================================================================
-export interface JobCardData {
-  id: string;
-  title: string;
-  companyName: string;
-  companyLogo?: string;
-  location: string;
-  salaryMin: number;
-  salaryMax: number;
-  currency: string;
-  postedAt: string;
-  tags: string[];
-  isFavorite: boolean;
-  category: string;
-  jobType: string;
-}
-
 export interface UseJobsReturn {
-  jobs: JobCardData[];
+  jobs: JobCardProps[];
   loading: boolean;
   error: string | null;
-  favorites: Set<number>;
-  toggleFavorite: (jobId: number) => void;
+  toggleFavorite: (job: JobCardProps) => Promise<void>;
   refetch: () => Promise<void>;
   refresh: () => Promise<void>;
 }
@@ -42,7 +24,11 @@ export function useJobs(
   } = {},
 ): UseJobsReturn {
   const getJobsUseCase = ServiceFactory.getInstance().getGetJobsUseCase();
-  const [favorites, setFavorites] = useState<Set<number>>(new Set());
+  const {
+    favorites,
+    loading: favoritesLoading,
+    toggleFavorite,
+  } = useFavorites();
 
   const apiParams: GetJobsParams = {
     jobType: params.jobType,
@@ -85,7 +71,7 @@ export function useJobs(
     return result;
   }, [rawJobs, localFilters.category, localFilters.search]);
 
-  const jobs: JobCardData[] = useMemo(() => {
+  const jobs: JobCardProps[] = useMemo(() => {
     return filteredJobs.map((job: Job) => {
       const parsedSalary = parseSalary(job.salary);
       return {
@@ -99,24 +85,12 @@ export function useJobs(
         currency: parsedSalary.currency,
         postedAt: formatPostedDate(job.publicationDate),
         tags: job.tags,
-        isFavorite: favorites.has(job.id),
-        category: job.category,
-        jobType: job.jobType,
+        isFavorite: favorites.some(
+          (f: JobCardProps) => f.id === job.id.toString(),
+        ),
       };
     });
   }, [filteredJobs, favorites]);
-
-  const toggleFavorite = useCallback((jobId: number) => {
-    setFavorites((prev) => {
-      const next = new Set(prev);
-      if (next.has(jobId)) {
-        next.delete(jobId);
-      } else {
-        next.add(jobId);
-      }
-      return next;
-    });
-  }, []);
 
   const refetch = useCallback(async () => {
     await tanstackRefetch();
@@ -129,9 +103,8 @@ export function useJobs(
 
   return {
     jobs,
-    loading: isLoading,
+    loading: isLoading || favoritesLoading,
     error: error instanceof Error ? error.message : null,
-    favorites,
     toggleFavorite,
     refetch,
     refresh,

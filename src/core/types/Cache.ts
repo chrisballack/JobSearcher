@@ -1,7 +1,7 @@
 export interface CachedData<T> {
   data: T;
   timestamp: number;
-  expiresAt: number;
+  expiresAt: number | null;
 }
 
 export const createCachedData = <T>(data: T, ttlMs: number): CachedData<T> => {
@@ -9,11 +9,11 @@ export const createCachedData = <T>(data: T, ttlMs: number): CachedData<T> => {
   return {
     data,
     timestamp: now,
-    expiresAt: ttlMs === Infinity ? Infinity : now + ttlMs,
+    expiresAt: ttlMs === Infinity ? null : now + ttlMs,
   };
 };
 
 export const isCacheExpired = (cached: CachedData<unknown>): boolean => {
-  if (cached.expiresAt === Infinity) return false;
+  if (cached.expiresAt === null) return false;
   return Date.now() > cached.expiresAt;
 };

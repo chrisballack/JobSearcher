@@ -25,7 +25,7 @@ import FilterBar, {
   FilterState,
   JobType,
 } from "@/presentation/components/FilterBar";
-import JobCard from "@/presentation/components/JobCard";
+import JobCard, { JobCardProps } from "@/presentation/components/JobCard";
 import { useCategories } from "@/presentation/hooks/useCategories";
 import { useJobs } from "@/presentation/hooks/useJobs";
 import Config from "@/core/constants/Config";
@@ -232,11 +232,11 @@ export default function JobsScreen() {
   // Renderers
   // ========================================================================
   const renderJobCard = useCallback(
-    ({ item }: { item: (typeof jobs)[0] }) => (
+    ({ item }: { item: JobCardProps }) => (
       <JobCard
         {...item}
         onPress={() => handleJobPress(item.id)}
-        onToggleFavorite={() => toggleFavorite(parseInt(item.id, 10))}
+        onToggleFavorite={() => toggleFavorite(item)}
       />
     ),
     [handleJobPress, toggleFavorite],

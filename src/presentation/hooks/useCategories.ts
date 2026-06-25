@@ -1,11 +1,3 @@
-//
-//  useCategories.ts
-//  JobSearcher
-//
-//  Created by Christians Bonilla on 26/06/2026.
-//  Copyright © 2026 JobSearcher. All rights reserved.
-//
-
 import { useQuery } from "@tanstack/react-query";
 import { ServiceFactory } from "@/infrastructure/di/ServiceFactory";
 import { Category } from "@/domain/entities/Category";
