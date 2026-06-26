@@ -1,4 +1,4 @@
-import { useCallback, useMemo } from "react";
+import { useCallback, useMemo, useEffect } from "react";
 import {
   View,
   Text,
@@ -6,7 +6,7 @@ import {
   ScrollView,
   Linking,
   Share,
-  useWindowDimensions,
+  TouchableOpacity,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useLocalSearchParams, useNavigation } from "expo-router";
@@ -15,6 +15,7 @@ import { useTheme } from "@/core/theme";
 import { spacing, fontSize, iconSize } from "@/core/design-system";
 import { useJobsStore } from "@/presentation/stores/jobsStore";
 import { useFavorites } from "@/presentation/hooks/useFavorites";
+import { useFavoritesStore } from "@/presentation/stores/favoritesStore";
 import JobDetailHeader from "@/presentation/components/detail/JobDetailHeader";
 import JobDetailInfoSection from "@/presentation/components/detail/JobDetailInfoSection";
 import JobDetailTags from "@/presentation/components/detail/JobDetailTags";
@@ -24,7 +25,12 @@ import JobDetailActions from "@/presentation/components/detail/JobDetailActions"
 // ============================================================================
 // Constants
 // ============================================================================
-const TRACKING_PIXEL_PATTERN = /\/track\/\d+\//;
+const HEADER_BUTTON_HIT_SLOP = {
+  top: spacing.md,
+  bottom: spacing.md,
+  left: spacing.md,
+  right: spacing.md,
+};
 
 // ============================================================================
 // Component
@@ -34,14 +40,49 @@ export default function JobDetailScreen() {
   const navigation = useNavigation();
   const { t } = useTranslation();
   const { theme } = useTheme();
-  const { width } = useWindowDimensions();
   const { getJobById } = useJobsStore();
-  const { toggleFavorite, isFavorite } = useFavorites();
+  const { toggleFavorite } = useFavorites();
+
+  const isFav = useFavoritesStore((state) =>
+    id ? state.favorites.some((f) => f.id === id) : false,
+  );
 
   const job = useMemo(
     () => (id ? getJobById(id) : undefined),
     [id, getJobById],
   );
+
+  useEffect(() => {
+    if (job) {
+      navigation.setOptions({
+        title: job.companyName,
+        headerRight: () => (
+          <View style={styles.headerButtonContainer}>
+            <View style={styles.headerButtonSpacer} />
+            <TouchableOpacity
+              onPress={() => job && toggleFavorite(job)}
+              style={styles.headerButton}
+              hitSlop={HEADER_BUTTON_HIT_SLOP}
+            >
+              <Ionicons
+                name={isFav ? "bookmark" : "bookmark-outline"}
+                size={iconSize.md}
+                color={isFav ? theme.colors.primary : theme.colors.text}
+              />
+            </TouchableOpacity>
+            <View style={styles.headerButtonSpacer} />
+          </View>
+        ),
+      });
+    }
+  }, [
+    job,
+    isFav,
+    navigation,
+    theme.colors.primary,
+    theme.colors.text,
+    toggleFavorite,
+  ]);
 
   const handleApply = useCallback(async () => {
     if (!job?.url) return;
@@ -67,14 +108,6 @@ export default function JobDetailScreen() {
       }
     }
   }, [job]);
-
-  const handleHtmlLinkPress = useCallback((event: unknown, href: string) => {
-    Linking.openURL(href).catch((error: Error) => {
-      if (__DEV__) {
-        console.error("[JobDetail] Failed to open HTML link:", error);
-      }
-    });
-  }, []);
 
   if (!job) {
     return (
@@ -115,6 +148,17 @@ export default function JobDetailScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+  },
+  headerButtonContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  headerButtonSpacer: {
+    width: spacing.md,
+  },
+  headerButton: {
+    padding: spacing.xs,
   },
   notFoundContainer: {
     flex: 1,
