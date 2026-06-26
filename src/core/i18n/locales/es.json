@@ -3,16 +3,6 @@
     "loading": "Cargando...",
     "error": "Error",
     "retry": "Reintentar",
-    "cancel": "Cancelar",
-    "confirm": "Confirmar",
-    "save": "Guardar",
-    "delete": "Eliminar",
-    "search": "Buscar",
-    "filter": "Filtrar",
-    "apply": "Aplicar",
-    "clear": "Limpiar",
-    "noResults": "Sin resultados",
-    "all": "Todos",
     "back": "Volver"
   },
   "tabs": {
@@ -20,31 +10,19 @@
     "favorites": "Favoritos"
   },
   "jobs": {
-    "title": "Listado de Empleos",
-    "subtitle": "Encuentra tu próximo empleo",
     "filters": {
-      "title": "Filtros de Búsqueda",
       "searchPlaceholder": "Buscar por título o empresa...",
       "category": "Categoría",
       "jobType": "Tipo de Empleo",
       "allCategories": "Todas",
       "allTypes": "Todos",
       "applyFilters": "Aplicar Filtros",
-      "clearFilters": "Limpiar",
-      "activeFilters": "Filtros activos",
-      "noFilters": "Sin filtros"
+      "clearFilters": "Limpiar"
     },
     "empty": {
       "title": "Listado de Empleos",
       "subtitle": "Presiona el botón de filtros para comenzar",
       "subtitleActive": "Configura tus filtros y presiona Aplicar"
-    },
-    "types": {
-      "full_time": "Full Time",
-      "part_time": "Part Time",
-      "contract": "Contract",
-      "freelance": "Freelance",
-      "internship": "Internship"
     },
     "company": {
       "unknown": "Empresa desconocida"
@@ -56,7 +34,6 @@
     }
   },
   "favorites": {
-    "title": "Favoritos",
     "empty": {
       "title": "Sin favoritos aún",
       "subtitle": "Guarda empleos que te interesen para verlos aquí"
@@ -66,19 +43,7 @@
     "title": "Detalle del Empleo",
     "apply": "Aplicar",
     "share": "Compartir",
-    "save": "Guardar",
-    "saved": "Guardado",
     "description": "Descripción",
-    "requirements": "Requisitos",
-    "benefits": "Beneficios",
-    "tags": "Etiquetas",
-    "jobNotFound": "Empleo no encontrado",
-    "jobNotFoundSubtitle": "Este empleo puede haber sido eliminado o no existir."
-  },
-  "errors": {
-    "network": "Sin respuesta del servidor. Verifica tu conexión.",
-    "generic": "Ocurrió un error inesperado",
-    "notFound": "No se encontró el recurso",
-    "unauthorized": "Sesión expirada"
+    "tags": "Etiquetas"
   }
 }

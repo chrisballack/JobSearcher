@@ -3,16 +3,6 @@
     "loading": "Loading...",
     "error": "Error",
     "retry": "Retry",
-    "cancel": "Cancel",
-    "confirm": "Confirm",
-    "save": "Save",
-    "delete": "Delete",
-    "search": "Search",
-    "filter": "Filter",
-    "apply": "Apply",
-    "clear": "Clear",
-    "noResults": "No results",
-    "all": "All",
     "back": "Back"
   },
   "tabs": {
@@ -20,31 +10,19 @@
     "favorites": "Favorites"
   },
   "jobs": {
-    "title": "Job Listings",
-    "subtitle": "Find your next job",
     "filters": {
-      "title": "Search Filters",
       "searchPlaceholder": "Search by title or company...",
       "category": "Category",
       "jobType": "Job Type",
       "allCategories": "All",
       "allTypes": "All",
       "applyFilters": "Apply Filters",
-      "clearFilters": "Clear",
-      "activeFilters": "Active filters",
-      "noFilters": "No filters"
+      "clearFilters": "Clear"
     },
     "empty": {
       "title": "Job Listings",
       "subtitle": "Tap the filter button to get started",
       "subtitleActive": "Set your filters and tap Apply"
-    },
-    "types": {
-      "full_time": "Full Time",
-      "part_time": "Part Time",
-      "contract": "Contract",
-      "freelance": "Freelance",
-      "internship": "Internship"
     },
     "company": {
       "unknown": "Unknown company"
@@ -56,7 +34,6 @@
     }
   },
   "favorites": {
-    "title": "Favorites",
     "empty": {
       "title": "No favorites yet",
       "subtitle": "Save jobs you're interested in to see them here"
@@ -66,18 +43,7 @@
     "title": "Job Details",
     "apply": "Apply",
     "share": "Share",
-    "save": "Save",
-    "saved": "Saved",
     "description": "Description",
-    "requirements": "Requirements",
-    "benefits": "Benefits",
-    "tags": "Tags",
-    "jobNotFound": "Job not found"
-  },
-  "errors": {
-    "network": "No response from server. Check your connection.",
-    "generic": "An unexpected error occurred",
-    "notFound": "Resource not found",
-    "unauthorized": "Session expired"
+    "tags": "Tags"
   }
 }

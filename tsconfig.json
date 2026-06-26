@@ -3,7 +3,7 @@
   "compilerOptions": {
     "strict": true,
     "moduleResolution": "bundler",
-    "types": ["node", "expo/types"],
+    "types": ["node", "expo/types", "jest"],
     "paths": {
       "@/*": ["./src/*", "./app/*"]
     }

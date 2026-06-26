@@ -1,7 +1,6 @@
 import i18n from "i18next";
 import { initReactI18next } from "react-i18next";
 
-// Importar recursos
 import en from "./locales/en.json";
 import es from "./locales/es.json";
 export const SUPPORTED_LANGUAGES = ["en", "es"] as const;

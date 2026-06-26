@@ -37,6 +37,9 @@ export function formatPostedDate(isoDate: string): string {
   if (!isoDate) return "";
 
   const date = new Date(isoDate);
+
+  if (isNaN(date.getTime())) return "";
+
   const now = new Date();
   const diffMs = now.getTime() - date.getTime();
   const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
