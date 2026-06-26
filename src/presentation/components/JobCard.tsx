@@ -17,21 +17,26 @@ import {
 export interface JobCardProps {
   id: string;
   title: string;
-  companyName?: string;
+  companyName: string;
   companyLogo?: string;
   location: string;
   salaryMin?: number;
   salaryMax?: number;
   currency?: string;
+  salaryRaw?: string;
   postedAt: string;
   tags?: string[];
   isFavorite?: boolean;
+  category?: string;
+  jobType?: string;
+  description?: string;
+  url?: string;
   onPress?: () => void;
   onToggleFavorite?: () => void;
 }
 
 // ============================================================================
-// Constants (sin magic numbers)
+// Constants
 // ============================================================================
 const BOOKMARK_HIT_SLOP = {
   top: spacing.md,
@@ -95,7 +100,7 @@ export default function JobCard({
   const { theme } = useTheme();
 
   const visibleTags = tags.slice(0, MAX_TAGS_VISIBLE);
-  const safeCompanyName = companyName || "";
+  const safeCompanyName = companyName ?? "";
   const companyInitial =
     safeCompanyName.length > 0 ? safeCompanyName.charAt(0).toUpperCase() : "?";
 
@@ -112,7 +117,6 @@ export default function JobCard({
       onPress={onPress}
       activeOpacity={0.7}
     >
-      {/* Header: Logo + Bookmark */}
       <View style={styles.header}>
         <View style={styles.logoContainer}>
           {companyLogo ? (
@@ -151,7 +155,6 @@ export default function JobCard({
         </TouchableOpacity>
       </View>
 
-      {/* Title & Company */}
       <View style={styles.content}>
         <Text
           style={[styles.title, { color: theme.colors.text }]}
@@ -163,10 +166,9 @@ export default function JobCard({
           style={[styles.company, { color: theme.colors.textSecondary }]}
           numberOfLines={1}
         >
-          {companyName || t("jobs.company.unknown")}
+          {safeCompanyName || t("jobs.company.unknown")}
         </Text>
 
-        {/* Tags */}
         {visibleTags.length > 0 && (
           <View style={styles.tagsContainer}>
             {visibleTags.map((tag: string, index: number) => (
@@ -190,7 +192,6 @@ export default function JobCard({
           </View>
         )}
 
-        {/* Location & Salary */}
         <View style={styles.footer}>
           <View style={styles.locationContainer}>
             <Ionicons
@@ -211,7 +212,6 @@ export default function JobCard({
           </Text>
         </View>
 
-        {/* Posted Date */}
         <Text style={[styles.postedAt, { color: theme.colors.textTertiary }]}>
           {postedAt}
         </Text>

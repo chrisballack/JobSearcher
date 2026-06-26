@@ -70,7 +70,8 @@
     "saved": "Saved",
     "description": "Description",
     "requirements": "Requirements",
-    "benefits": "Benefits"
+    "benefits": "Benefits",
+    "tags": "Tags"
   },
   "errors": {
     "network": "No response from server. Check your connection.",

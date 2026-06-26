@@ -1,10 +1,11 @@
 import { useQuery } from "@tanstack/react-query";
-import { useCallback, useMemo } from "react";
+import { useCallback, useMemo, useEffect } from "react";
 import { ServiceFactory } from "@/infrastructure/di/ServiceFactory";
 import { Job, GetJobsParams } from "@/domain/entities/Job";
 import { parseSalary, formatPostedDate } from "@/core/utils/formatters";
 import { useFavorites } from "@/presentation/hooks/useFavorites";
 import { JobCardProps } from "@/presentation/components/JobCard";
+import { useJobsStore } from "@/presentation/stores/jobsStore";
 import Config from "@/core/constants/Config";
 
 export interface UseJobsReturn {
@@ -29,6 +30,7 @@ export function useJobs(
     loading: favoritesLoading,
     toggleFavorite,
   } = useFavorites();
+  const { setJobs } = useJobsStore();
 
   const apiParams: GetJobsParams = {
     jobType: params.jobType,
@@ -83,14 +85,25 @@ export function useJobs(
         salaryMin: parsedSalary.min,
         salaryMax: parsedSalary.max,
         currency: parsedSalary.currency,
+        salaryRaw: job.salary,
         postedAt: formatPostedDate(job.publicationDate),
         tags: job.tags,
         isFavorite: favorites.some(
           (f: JobCardProps) => f.id === job.id.toString(),
         ),
+        category: job.category,
+        jobType: job.jobType,
+        description: job.description,
+        url: job.url,
       };
     });
   }, [filteredJobs, favorites]);
+
+  useEffect(() => {
+    if (jobs.length > 0) {
+      setJobs(jobs);
+    }
+  }, [jobs, setJobs]);
 
   const refetch = useCallback(async () => {
     await tanstackRefetch();

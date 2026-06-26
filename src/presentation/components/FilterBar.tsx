@@ -166,7 +166,6 @@ export default function FilterBar({
         },
       ]}
     >
-      {/* ===== SEARCH BAR ===== */}
       <View
         style={[
           styles.searchContainer,
@@ -204,7 +203,6 @@ export default function FilterBar({
         )}
       </View>
 
-      {/* ===== SECTION 1: CATEGORY ===== */}
       <View style={styles.section}>
         <View style={styles.sectionHeader}>
           <Ionicons
@@ -289,7 +287,6 @@ export default function FilterBar({
         </ScrollView>
       </View>
 
-      {/* ===== SECTION 2: JOB TYPE ===== */}
       <View style={styles.section}>
         <View style={styles.sectionHeader}>
           <Ionicons
@@ -373,7 +370,6 @@ export default function FilterBar({
         </ScrollView>
       </View>
 
-      {/* ===== BOTTOM BAR ===== */}
       <View
         style={[
           styles.bottomBar,

@@ -70,7 +70,8 @@
     "saved": "Guardado",
     "description": "Descripción",
     "requirements": "Requisitos",
-    "benefits": "Beneficios"
+    "benefits": "Beneficios",
+    "tags": "Etiquetas"
   },
   "errors": {
     "network": "Sin respuesta del servidor. Verifica tu conexión.",
