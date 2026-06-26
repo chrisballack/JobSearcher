@@ -6,7 +6,6 @@ import {
   TouchableOpacity,
   NativeSyntheticEvent,
   NativeScrollEvent,
-  ActivityIndicator,
   RefreshControl,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
@@ -26,6 +25,8 @@ import FilterBar, {
   JobType,
 } from "@/presentation/components/FilterBar";
 import JobCard, { JobCardProps } from "@/presentation/components/JobCard";
+import EmptyState from "@/presentation/components/common/EmptyState";
+import LoadingState from "@/presentation/components/common/LoadingState";
 import { useCategories } from "@/presentation/hooks/useCategories";
 import { useJobs } from "@/presentation/hooks/useJobs";
 import Config from "@/core/constants/Config";
@@ -68,41 +69,6 @@ const INITIAL_FILTERS: FilterState = {
   categorySlug: null,
   jobType: null,
 };
-
-// ============================================================================
-// Empty List Component
-// ============================================================================
-function EmptyJobsList({
-  showFilters,
-  title,
-  subtitle,
-  subtitleActive,
-  iconColor,
-  textColor,
-  textSecondaryColor,
-}: {
-  showFilters: boolean;
-  title: string;
-  subtitle: string;
-  subtitleActive: string;
-  iconColor: string;
-  textColor: string;
-  textSecondaryColor: string;
-}) {
-  return (
-    <View style={styles.emptyState}>
-      <Ionicons
-        name="briefcase-outline"
-        size={iconSize["2xl"]}
-        color={iconColor}
-      />
-      <Text style={[styles.emptyTitle, { color: textColor }]}>{title}</Text>
-      <Text style={[styles.emptySubtitle, { color: textSecondaryColor }]}>
-        {showFilters ? subtitleActive : subtitle}
-      </Text>
-    </View>
-  );
-}
 
 // ============================================================================
 // Component
@@ -244,62 +210,45 @@ export default function JobsScreen() {
 
   const renderEmptyList = useCallback(() => {
     if (loading && !isRefreshing) {
-      return (
-        <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color={theme.colors.primary} />
-          <Text
-            style={[styles.loadingText, { color: theme.colors.textSecondary }]}
-          >
-            {t("common.loading")}
-          </Text>
-        </View>
-      );
+      return <LoadingState />;
     }
 
     if (error) {
       return (
-        <View style={styles.emptyState}>
-          <Ionicons
-            name="alert-circle-outline"
-            size={iconSize["2xl"]}
-            color={theme.colors.error}
-          />
-          <Text style={[styles.emptyTitle, { color: theme.colors.text }]}>
-            {t("common.error")}
-          </Text>
-          <Text
-            style={[
-              styles.emptySubtitle,
-              { color: theme.colors.textSecondary },
-            ]}
-          >
-            {error}
-          </Text>
-          <TouchableOpacity
-            style={[
-              styles.retryButton,
-              { backgroundColor: theme.colors.primary },
-            ]}
-            onPress={() => refresh()}
-          >
-            <Text style={styles.retryButtonText}>{t("common.retry")}</Text>
-          </TouchableOpacity>
-        </View>
+        <EmptyState
+          icon="alert-circle-outline"
+          title={t("common.error")}
+          subtitle={error}
+          actionLabel={t("common.retry")}
+          onAction={() => refresh()}
+        />
       );
     }
 
     return (
-      <EmptyJobsList
-        showFilters={showFilters}
+      <EmptyState
+        icon="briefcase-outline"
         title={t("jobs.empty.title")}
-        subtitle={t("jobs.empty.subtitle")}
-        subtitleActive={t("jobs.empty.subtitleActive")}
-        iconColor={theme.colors.textTertiary}
-        textColor={theme.colors.text}
-        textSecondaryColor={theme.colors.textSecondary}
+        subtitle={
+          showFilters
+            ? t("jobs.empty.subtitleActive")
+            : t("jobs.empty.subtitle")
+        }
       />
     );
-  }, [loading, error, showFilters, t, theme, refresh, isRefreshing]);
+  }, [loading, error, showFilters, t, refresh, isRefreshing]);
+
+  const renderRefreshControl = useCallback(
+    () => (
+      <RefreshControl
+        refreshing={isRefreshing}
+        onRefresh={handleRefresh}
+        tintColor={theme.colors.primary}
+        colors={[theme.colors.primary]}
+      />
+    ),
+    [isRefreshing, handleRefresh, theme.colors.primary],
+  );
 
   return (
     <View
@@ -353,14 +302,7 @@ export default function JobsScreen() {
         onScroll={handleScroll}
         scrollEventThrottle={16}
         ListEmptyComponent={renderEmptyList()}
-        refreshControl={
-          <RefreshControl
-            refreshing={isRefreshing}
-            onRefresh={handleRefresh}
-            tintColor={theme.colors.primary}
-            colors={[theme.colors.primary]}
-          />
-        }
+        refreshControl={renderRefreshControl()}
       />
     </View>
   );
@@ -395,45 +337,5 @@ const styles = StyleSheet.create({
     fontSize: fontSize.sm,
     fontWeight: fontWeight.semibold,
     flex: 1,
-  },
-  emptyState: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    padding: spacing["2xl"],
-    minHeight: 300,
-  },
-  emptyTitle: {
-    fontSize: fontSize["3xl"],
-    fontWeight: fontWeight.bold,
-    marginTop: spacing.base,
-    marginBottom: spacing.sm,
-  },
-  emptySubtitle: {
-    fontSize: fontSize.md,
-    textAlign: "center",
-    lineHeight: 22,
-  },
-  loadingContainer: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    padding: spacing["2xl"],
-    minHeight: 300,
-    gap: spacing.base,
-  },
-  loadingText: {
-    fontSize: fontSize.md,
-  },
-  retryButton: {
-    marginTop: spacing.base,
-    paddingHorizontal: spacing.xl,
-    paddingVertical: spacing.md,
-    borderRadius: borderRadius.lg,
-  },
-  retryButtonText: {
-    color: "#FFFFFF",
-    fontSize: fontSize.base,
-    fontWeight: fontWeight.bold,
   },
 });

@@ -71,7 +71,8 @@
     "description": "Description",
     "requirements": "Requirements",
     "benefits": "Benefits",
-    "tags": "Tags"
+    "tags": "Tags",
+    "jobNotFound": "Job not found"
   },
   "errors": {
     "network": "No response from server. Check your connection.",

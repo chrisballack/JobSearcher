@@ -71,7 +71,9 @@
     "description": "Descripción",
     "requirements": "Requisitos",
     "benefits": "Beneficios",
-    "tags": "Etiquetas"
+    "tags": "Etiquetas",
+    "jobNotFound": "Empleo no encontrado",
+    "jobNotFoundSubtitle": "Este empleo puede haber sido eliminado o no existir."
   },
   "errors": {
     "network": "Sin respuesta del servidor. Verifica tu conexión.",

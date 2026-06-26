@@ -46,11 +46,11 @@ function parseHtml(html: string): HtmlNode[] {
     },
     ontext(text) {
       const parent = stack[stack.length - 1];
-      const trimmedText = text.trim();
-      if (trimmedText) {
+      const decodedText = decodeHtmlEntities(text);
+      if (decodedText) {
         parent.children?.push({
           type: "text",
-          text: decodeHtmlEntities(trimmedText),
+          text: decodedText,
         });
       }
     },
@@ -75,18 +75,6 @@ function isEmptyNode(node: HtmlNode): boolean {
     return node.children.every(isEmptyNode);
   }
   return true;
-}
-
-function countConsecutiveBr(nodes: HtmlNode[]): number {
-  let count = 0;
-  for (const node of nodes) {
-    if (node.type === "tag" && node.tagName === "br") {
-      count++;
-    } else {
-      break;
-    }
-  }
-  return count;
 }
 
 function cleanExcessiveBr(nodes: HtmlNode[]): HtmlNode[] {
@@ -227,38 +215,46 @@ function HtmlNodeRenderer({ node, theme }: HtmlNodeRendererProps) {
           </Text>
         );
       case "h1":
-        return (
-          <Text style={[styles.h1, { color: theme.colors.text }]}>
-            {children.map((child, i) => (
-              <HtmlNodeRenderer key={i} node={child} theme={theme} />
-            ))}
-          </Text>
-        );
       case "h2":
+      case "h3":
+        const headingStyle =
+          node.tagName === "h1"
+            ? styles.h1
+            : node.tagName === "h2"
+              ? styles.h2
+              : styles.h3;
         return (
-          <Text style={[styles.h2, { color: theme.colors.text }]}>
+          <Text style={[headingStyle, { color: theme.colors.text }]}>
             {children.map((child, i) => (
               <HtmlNodeRenderer key={i} node={child} theme={theme} />
             ))}
           </Text>
         );
-      case "h3":
+      case "div":
+        if (node.attribs?.class?.includes("h2")) {
+          return (
+            <Text style={[styles.h2, { color: theme.colors.text }]}>
+              {children.map((child, i) => (
+                <HtmlNodeRenderer key={i} node={child} theme={theme} />
+              ))}
+            </Text>
+          );
+        }
         return (
-          <Text style={[styles.h3, { color: theme.colors.text }]}>
+          <Text style={[styles.text, { color: theme.colors.text }]}>
             {children.map((child, i) => (
               <HtmlNodeRenderer key={i} node={child} theme={theme} />
             ))}
           </Text>
         );
       case "br":
-        return <Text> </Text>;
+        return <Text>{"\n"}</Text>;
       case "hr":
         return (
           <View style={[styles.hr, { backgroundColor: theme.colors.border }]} />
         );
       case "img":
         return null;
-      case "div":
       case "span":
         return (
           <>
@@ -298,7 +294,7 @@ export function HtmlRenderer({ html }: { html: string }) {
 const styles = StyleSheet.create({
   text: {
     fontSize: fontSize.base,
-    lineHeight: 20,
+    lineHeight: 22,
   },
   paragraph: {
     marginBottom: spacing.sm,
@@ -336,22 +332,22 @@ const styles = StyleSheet.create({
     textDecorationLine: "underline" as const,
   },
   h1: {
-    fontSize: fontSize.lg,
+    fontSize: fontSize.xl,
     fontWeight: fontWeight.bold,
-    marginBottom: spacing.sm,
-    marginTop: spacing.md,
+    marginBottom: spacing.md,
+    marginTop: spacing.lg,
   },
   h2: {
-    fontSize: fontSize.base,
+    fontSize: fontSize.lg,
     fontWeight: fontWeight.bold,
-    marginBottom: spacing.sm,
-    marginTop: spacing.sm,
+    marginBottom: spacing.md,
+    marginTop: spacing.lg,
   },
   h3: {
     fontSize: fontSize.base,
     fontWeight: fontWeight.bold,
-    marginBottom: spacing.xs,
-    marginTop: spacing.sm,
+    marginBottom: spacing.sm,
+    marginTop: spacing.md,
   },
   hr: {
     height: 1,

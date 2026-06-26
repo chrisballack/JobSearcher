@@ -1,12 +1,13 @@
 import { useCallback } from "react";
-import { View, Text, StyleSheet, ActivityIndicator } from "react-native";
-import { Ionicons } from "@expo/vector-icons";
-import { useTranslation } from "react-i18next";
+import { View, StyleSheet } from "react-native";
 import { useRouter } from "expo-router";
+import { useTranslation } from "react-i18next";
 import { FlashList } from "@shopify/flash-list";
 import { useTheme } from "@/core/theme";
-import { spacing, fontSize, fontWeight, iconSize } from "@/core/design-system";
+import { spacing } from "@/core/design-system";
 import JobCard, { JobCardProps } from "@/presentation/components/JobCard";
+import EmptyState from "@/presentation/components/common/EmptyState";
+import LoadingState from "@/presentation/components/common/LoadingState";
 import { useFavorites } from "@/presentation/hooks/useFavorites";
 
 // ============================================================================
@@ -43,60 +44,33 @@ export default function FavoritesScreen() {
     [handleJobPress, handleToggleFavorite],
   );
 
-  const renderEmptyList = useCallback(
-    () => (
-      <View style={styles.emptyState}>
-        <Ionicons
-          name="bookmark-outline"
-          size={iconSize["3xl"]}
-          color={theme.colors.textTertiary}
-        />
-        <Text style={[styles.title, { color: theme.colors.text }]}>
-          {t("favorites.empty.title")}
-        </Text>
-        <Text style={[styles.subtitle, { color: theme.colors.textSecondary }]}>
-          {t("favorites.empty.subtitle")}
-        </Text>
-      </View>
-    ),
-    [
-      t,
-      theme.colors.text,
-      theme.colors.textSecondary,
-      theme.colors.textTertiary,
-    ],
-  );
-
-  if (loading) {
+  const renderEmptyList = useCallback(() => {
     return (
-      <View
-        style={[styles.container, { backgroundColor: theme.colors.background }]}
-      >
-        <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color={theme.colors.primary} />
-          <Text
-            style={[styles.subtitle, { color: theme.colors.textSecondary }]}
-          >
-            {t("common.loading")}
-          </Text>
-        </View>
-      </View>
+      <EmptyState
+        icon="bookmark-outline"
+        title={t("favorites.empty.title")}
+        subtitle={t("favorites.empty.subtitle")}
+      />
     );
-  }
+  }, [t]);
 
   return (
     <View
       style={[styles.container, { backgroundColor: theme.colors.background }]}
     >
-      <FlashList<JobCardProps>
-        data={favorites}
-        renderItem={renderFavoriteCard}
-        keyExtractor={(item) => item.id}
-        estimatedItemSize={180}
-        showsVerticalScrollIndicator={false}
-        contentContainerStyle={styles.listContent}
-        ListEmptyComponent={renderEmptyList}
-      />
+      {loading ? (
+        <LoadingState />
+      ) : (
+        <FlashList<JobCardProps>
+          data={favorites}
+          renderItem={renderFavoriteCard}
+          keyExtractor={(item) => item.id}
+          estimatedItemSize={180}
+          showsVerticalScrollIndicator={false}
+          contentContainerStyle={styles.listContent}
+          ListEmptyComponent={renderEmptyList()}
+        />
+      )}
     </View>
   );
 }
@@ -110,32 +84,5 @@ const styles = StyleSheet.create({
   },
   listContent: {
     paddingVertical: spacing.base,
-  },
-  loadingContainer: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    padding: spacing["2xl"],
-    minHeight: 300,
-    gap: spacing.base,
-  },
-  emptyState: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    padding: spacing["2xl"],
-    minHeight: 300,
-  },
-  title: {
-    fontSize: fontSize["3xl"],
-    fontWeight: fontWeight.bold,
-    marginTop: spacing.base,
-    marginBottom: spacing.sm,
-    textAlign: "center",
-  },
-  subtitle: {
-    fontSize: fontSize.md,
-    textAlign: "center",
-    lineHeight: 22,
   },
 });
