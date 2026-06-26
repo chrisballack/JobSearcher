@@ -9,9 +9,22 @@ export const TIME = {
 } as const;
 
 // ============================================================================
+// Environment
+// ============================================================================
+export type Environment = "development" | "staging" | "production";
+
+const ENV: Environment =
+  (process.env.EXPO_PUBLIC_ENV as Environment) || "development";
+
+// ============================================================================
 // API
 // ============================================================================
 export const Config = {
+  // Environment
+  ENV,
+  IS_DEV: __DEV__,
+
+  // API
   API_BASE_URL: process.env.EXPO_PUBLIC_API_URL || "https://remotive.com/api",
 
   // Endpoints
@@ -55,9 +68,6 @@ export const Config = {
     API: 10 * TIME.SECOND,
     CACHE_READ: 5 * TIME.SECOND,
   },
-
-  // Environment
-  IS_DEV: __DEV__,
 } as const;
 
 export default Config;
